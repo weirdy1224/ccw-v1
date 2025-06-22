@@ -5,7 +5,7 @@ _**RUN THESE COMMANDS TO SETUP THE ENVIRONMENT**_<br/>
 **_TO RUN THE WEBSITE_**<br/>
 <br/>
 **Open a terminal**<br/>
-_cd frontend<_br/>
+_cd frontend_<br/>
 _npm start_<br/>
 
 **Open another terminal**<br/>
