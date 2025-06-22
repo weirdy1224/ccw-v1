@@ -1,0 +1,5 @@
+nano /opt/homebrew/opt/python@3/Frameworks/Python.framework/Versions/3.13/pip.conf
+
+
+[global]
+break-system-packages = true
