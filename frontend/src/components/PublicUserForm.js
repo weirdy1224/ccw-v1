@@ -5,13 +5,15 @@ import { useState, useEffect } from 'react';
 
 const validationSchema = Yup.object({
   name: Yup.string().required('Required'),
-  mobile: Yup.string().required('Required'),
+  mobile: Yup.string().matches(/^\d{10}$/, 'Mobile must be exactly 10 digits').required('Required'),
   email: Yup.string().email('Invalid email').required('Required'),
   account_type: Yup.string().required('Required'),
   account_ownership: Yup.string().required('Required'),
-  account_number: Yup.string().required('Required'),
+  account_number: Yup.string().matches(/^\d{9,18}$/, 'Account number must be 9–18 digits').required('Required'),
   ncrp_ack_number: Yup.string().required('Required'),
-  account_opening_year: Yup.string().required('Required'),
+  account_opening_year: Yup.string().matches(/^\d{4}$/, 'Year must be a 4-digit number').test('valid-year', 'Enter a valid year', val => {
+      const year = Number(val);return year > 1900 && year <= new Date().getFullYear();
+    }).required('Required'),
   id_proof_type: Yup.string().required('Required'),
 });
 
