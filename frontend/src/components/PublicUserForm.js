@@ -11,9 +11,9 @@ const validationSchema = Yup.object({
   account_ownership: Yup.string().required('Required'),
   account_number: Yup.string().matches(/^\d{9,18}$/, 'Account number must be 9–18 digits').required('Required'),
   ncrp_ack_number: Yup.string().required('Required'),
-  account_opening_year: Yup.string().matches(/^\d{4}$/, 'Year must be a 4-digit number').test('valid-year', 'Enter a valid year', val => {
-      const year = Number(val);return year > 1900 && year <= new Date().getFullYear();
-    }).required('Required'),
+  // account_opening_year: Yup.string().matches(/^\d{4}$/, 'Year must be a 4-digit number').test('valid-year', 'Enter a valid year', val => {
+  //     const year = Number(val);return year > 1900 && year <= new Date().getFullYear();
+  //   }).required('Required'),
   id_proof_type: Yup.string().required('Required'),
 });
 
@@ -35,7 +35,7 @@ const PublicUserForm = () => {
         <Formik
           initialValues={{
             name: '', mobile: '', email: '', address: '', account_type: '', account_ownership: '',
-            account_number: '', ncrp_ack_number: '', account_opening_year: '', business_description: '',
+            account_number: '', ncrp_ack_number: '', business_description: '',
             transaction_reason: '', id_proof_type: '', documents: null
           }}
           validationSchema={validationSchema}
@@ -73,7 +73,7 @@ const PublicUserForm = () => {
                   ['address', 'Address'],
                   ['account_number', 'Account Number'],
                   ['ncrp_ack_number', 'NCRP Acknowledgement'],
-                  ['account_opening_year', 'Opening Year']
+                  // ['account_opening_year', 'Opening Year']
                 ].map(([field, label]) => (
                   <div className="input-group" key={field}>
                     <label>{label}</label>
