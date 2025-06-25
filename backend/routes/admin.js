@@ -53,43 +53,6 @@ module.exports = (db) => {
       res.status(500).json({ message: 'Assignment failed' });
     }
   });
-  router.get('/dashboard-stats', async (req, res) => {
-    try {
-      const [[{ total }]] = await db.query(`SELECT COUNT(*) as total FROM requests`);
-      const [[{ pendingTransfer }]] = await db.query(`SELECT COUNT(*) as pendingTransfer FROM requests WHERE status = 'Pending Transfer'`);
-      const [[{ pendingOpinion }]] = await db.query(`SELECT COUNT(*) as pendingOpinion FROM requests WHERE status = 'Pending Opinion'`);
-      res.json({
-        total_requests: total,
-        pending_transfer: pendingTransfer,
-        pending_opinion: pendingOpinion
-      });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Error fetching dashboard stats' });
-    }
-  });
-
-  router.get('/controllers', async (req, res) => {
-    const [data] = await db.query(`
-    SELECT u.id, u.username, COUNT(r.id) AS total_assigned
-    FROM users u
-    LEFT JOIN requests r ON r.assigned_to = u.id
-    WHERE u.role = 'controller'
-    GROUP BY u.id
-  `);
-    res.json(data);
-  });
-
-  router.get('/police-info', async (req, res) => {
-    const [data] = await db.query(`
-    SELECT u.id, u.username, COUNT(r.id) AS total_assigned
-    FROM users u
-    LEFT JOIN requests r ON r.assigned_to = u.id
-    WHERE u.role = 'police'
-    GROUP BY u.id
-  `);
-    res.json(data);
-  });
 
   // POST /api/admin/create-controller
   router.post('/create-controller', async (req, res) => {
