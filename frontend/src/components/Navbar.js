@@ -53,10 +53,9 @@ const Navbar = () => {
           <>
             <Link to="/controller/dashboard" className="nav-link">Dashboard</Link>
             <Link to="/controller/search" className="nav-link">Search Request</Link>
-            <Link to="/controller/post-transfer" className="nav-link">Post Transfer</Link>
             <Link to="/controller/create-police" className="nav-link">Create Police</Link>
             <Link to="/controller/police-assignments" className="nav-link">Police Assignments</Link>
-            <Link to="/controller/requests" className="nav-link">My Requests</Link>
+            <Link to="/controller/requests" className="nav-link">View Requests</Link>
             <Link to="/controller/documents" className="nav-link">View Documents</Link>
           </>
         )}
@@ -64,7 +63,7 @@ const Navbar = () => {
         {role === 'police' && (
           <>
             <Link to="/police/dashboard" className="nav-link">Dashboard</Link>
-            <Link to="/police/requests" className="nav-link">My Requests</Link>
+            <Link to="/police/requests" className="nav-link">View Requests</Link>
             <Link to="/police/documents" className="nav-link">View Documents</Link>
           </>
         )}

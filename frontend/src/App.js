@@ -8,9 +8,11 @@ import TrackRequest from './components/TrackRequest';
 import AdminLogin from './components/AdminLogin';
 import PoliceLogin from './components/PoliceLogin';
 import ControllerLogin from './components/ControllerLogin';
+
 import AdminDashboard from './components/admin/AdminDashboard';
 import ControllerDashboard from './components/controller/ControllerDashboard';
 import PoliceDashboard from './components/police/PoliceDashboard';
+
 import CreateController from './components/admin/CreateController';
 import CreatePolice from './components/admin/CreatePolice';
 import SearchRequests from './components/admin/SearchRequests';
@@ -19,7 +21,17 @@ import AdminRequests from './components/admin/AdminRequests';
 import AdminDocuments from './components/admin/AdminDocuments';
 
 import ProtectedRoute from './components/ProtectedRoute';
+
+import ContCreatePolice from './components/controller/ContCreatePolice';
+import ContSearchRequests from './components/controller/ContSearchRequests';
+import ContPoliceAssignments from './components/controller/ContPoliceAssignments';
+import ControllerRequests from './components/controller/ControllerRequests';
+import ControllerDocuments from './components/controller/ControllerDocuments';
+
 import './global.css';
+import PoliceRequests from './components/police/PoliceRequests';
+import PoliceDocuments from './components/police/PoliceDocuments';
+
 
 const App = () => {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
@@ -57,6 +69,11 @@ const App = () => {
             <CreatePolice />
           </ProtectedRoute>
         } />
+        <Route path="/controller/create-police" element={
+          <ProtectedRoute allowedRoles={['controller']}>
+            <ContCreatePolice />
+          </ProtectedRoute>
+        } />
         <Route path="/controller/dashboard" element={
           <ProtectedRoute allowedRoles={['controller']}>
             <ControllerDashboard />
@@ -67,9 +84,19 @@ const App = () => {
             <SearchRequests />
           </ProtectedRoute>
         } />
+        <Route path="/controller/search" element={
+          <ProtectedRoute allowedRoles={['controller']}>
+            <ContSearchRequests />
+          </ProtectedRoute>
+        } />
         <Route path="/admin/police-assignments" element={
           <ProtectedRoute allowedRoles={['admin']}>
             <PoliceAssignments />
+          </ProtectedRoute>
+        } />
+        <Route path="/controller/police-assignments" element={
+          <ProtectedRoute allowedRoles={['controller']}>
+            <ContPoliceAssignments />
           </ProtectedRoute>
         } />
         <Route path="/admin/requests" element={
@@ -77,9 +104,29 @@ const App = () => {
             <AdminRequests />
           </ProtectedRoute>
         } />
+        <Route path="/controller/requests" element={
+          <ProtectedRoute allowedRoles={['controller']}>
+            <ControllerRequests />
+          </ProtectedRoute>
+        } />
+        <Route path="/police/requests" element={
+          <ProtectedRoute allowedRoles={['police']}>
+            <PoliceRequests />
+          </ProtectedRoute>
+        } />
         <Route path="/admin/documents" element={
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminDocuments />
+          </ProtectedRoute>
+        } />
+        <Route path="/controller/documents" element={
+          <ProtectedRoute allowedRoles={['controller']}>
+            <ControllerDocuments />
+          </ProtectedRoute>
+        } />
+        <Route path="/police/documents" element={
+          <ProtectedRoute allowedRoles={['police']}>
+            <PoliceDocuments />
           </ProtectedRoute>
         } />
         <Route path="/police/dashboard" element={

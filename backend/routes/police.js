@@ -13,18 +13,27 @@ module.exports = (db) => {
   });
 
   // ✅ Fetch assigned requests
-  router.get('/requests', async (req, res) => {
+router.get('/requests', async (req, res) => {
+  try {
+    const [results] = await db.query(`
+      SELECT r.*, u.username AS assigned_username
+      FROM requests r
+      LEFT JOIN users u ON r.assigned_to = u.id
+      ORDER BY r.created_at DESC
+    `);
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch requests' });
+  }
+});
+  router.get('/stations', async (req, res) => {
     try {
-      const [results] = await db.query(
-        'SELECT * FROM requests WHERE assigned_to = ? ORDER BY created_at DESC',
-        [req.user.id]
-      );
+      const [results] = await db.query('SELECT id, username FROM users WHERE role = "police"');
       res.json(results);
     } catch (err) {
-      res.status(500).json({ message: 'Failed to fetch requests' });
+      res.status(500).json({ message: 'Failed to fetch stations' });
     }
   });
-
   // ✅ Update status + send email if Completed/Rejected
   router.post('/status', async (req, res) => {
     const { requestId, status, reason } = req.body;

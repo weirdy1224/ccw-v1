@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const AdminRequests = () => {
+const ControllerRequests = () => {
   const [requests, setRequests] = useState([]);
   const [stations, setStations] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
@@ -14,10 +14,10 @@ const AdminRequests = () => {
   const fetchData = async () => {
     try {
       const [reqRes, stationRes] = await Promise.all([
-        axios.get('/api/admin/requests', {
+        axios.get('/api/controller/requests', {
           headers: { Authorization: `Bearer ${token}` }
         }),
-        axios.get('/api/admin/stations', {
+        axios.get('/api/controller/stations', {
           headers: { Authorization: `Bearer ${token}` }
         })
       ]);
@@ -31,7 +31,7 @@ const AdminRequests = () => {
   const assignRequest = async (requestId, stationId) => {
     try {
       await axios.post(
-        '/api/admin/assign',
+        '/api/controller/assign',
         { requestId, stationId },
         {
           headers: { Authorization: `Bearer ${token}` }
@@ -136,4 +136,4 @@ const AdminRequests = () => {
   );
 };
 
-export default AdminRequests;
+export default ControllerRequests;

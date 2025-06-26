@@ -591,14 +591,12 @@ body.dark .police-card li {
 }
 
 .search-box {
-  background: var(--bg-card-dark);
-  border: 1px solid var(--border-dark);
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 4px 12px rgba(0, 196, 204, 0.1);
+  box-shadow: var(--shadow);
   transition: transform 0.3s ease;
+  border: 1px solid;
 }
-
 .search-box:hover {
   transform: translateY(-4px);
 }
@@ -606,8 +604,8 @@ body.dark .police-card li {
 .search-box p {
   margin: 0.4rem 0;
   font-size: 0.95rem;
-  color: var(--text-dark);
 }
+
 
 .search-box p strong {
   color: var(--secondary);
@@ -636,7 +634,32 @@ body.dark .police-card li {
   border-color: var(--secondary);
   box-shadow: 0 0 10px rgba(0, 196, 204, 0.4);
 }
+body.light .search-bar{
+  color: var(--text-light);
+}
+body.light .search-box {
+  background: var(--bg-card-light);
+  border-color: var(--border-light);
+  color: var(--text-light);
+}
 
+/* Dark theme */
+body.dark .search-box {
+  background: var(--bg-card-dark);
+  border-color: var(--border-dark);
+  color: var(--text-dark);
+
+}body.light .search-box p {
+  color: var(--text-light);
+}
+
+body.dark .search-box p {
+  color: var(--text-dark);
+}
+
+.search-box p strong {
+  color: var(--secondary);
+}
 .officer-modal-overlay {
   position: fixed;
   top: 0;
