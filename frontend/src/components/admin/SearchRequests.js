@@ -11,7 +11,7 @@ const SearchRequests = () => {
     const fetchRequests = async () => {
       try {
         const res = await axios.get('/api/admin/requests', {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token} `}
         });
         setRequests(res.data);
       } catch (err) {
@@ -35,31 +35,58 @@ const SearchRequests = () => {
     <div className="page-wrapper">
       <div className="card">
         <h2 className="title">Search Requests</h2>
-        <input
-          type="text"
-          className="search-input"
-          placeholder="🔍 Search by name or reference number"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
+
+        <div className="search-bar-wrapper">
+          <input
+            type="text"
+            className="search-bar"
+            placeholder="Search by Name or Reference #"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
 
         {loading ? (
-          <p style={{ marginTop: '1rem' }}>Loading requests...</p>
+          <p>Loading...</p>
         ) : (
-          <ul className="results-list">
+          <div className="search-results">
             {query && filtered.length ? (
               filtered.map(req => (
-                <li key={req.id} className="result-item">
-                  <span className="ref-num">{req.reference_number}</span>
-                  <span className="name">{req.name}</span>
-                </li>
+                <div key={req.id} className="search-box">
+                  <p><strong>Reference #:</strong> {req.reference_number}</p>
+                  <p><strong>Name:</strong> {req.name}</p>
+                  <p><strong>Mobile:</strong> {req.mobile}</p>
+                  <p><strong>Email:</strong> {req.email}</p>
+                  <p><strong>Address:</strong> {req.address}</p>
+                  <p><strong>Account Number:</strong> {req.account_number}</p>
+                  <p><strong>Account Type:</strong> {req.account_type}</p>
+                  <p><strong>Ownership:</strong> {req.account_ownership}</p>
+                  <p><strong>NCRP Ack #:</strong> {req.ncrp_ack_number}</p>
+                  <p><strong>Business Description:</strong> {req.business_description}</p>
+                  <p><strong>Transaction Reason:</strong> {req.transaction_reason}</p>
+                  <p><strong>ID Proof Type:</strong> {req.id_proof_type}</p>
+                  <p><strong>Status:</strong> {req.status}</p>
+                  {req.document_paths && (
+                    <p><strong>Documents:</strong>{' '}
+                      {req.document_paths.split(',').map((file, i) => (
+                        <a
+                          key={i}
+                          href={`/uploads/${file}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ color: '#00c4cc', marginRight: '10px' }}
+                        >
+                          File {i + 1}
+                        </a>
+                      ))}
+                    </p>
+                  )}
+                </div>
               ))
             ) : (
-              <li className="result-item empty">
-                {query ? 'No matching results.' : 'Please enter a search term.'}
-              </li>
+              <p>{query ? 'No results found.' : 'Please enter a search term.'}</p>
             )}
-          </ul>
+          </div>
         )}
       </div>
     </div>
