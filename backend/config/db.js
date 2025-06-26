@@ -68,7 +68,17 @@ async function connectToDatabase() {
         FOREIGN KEY (assigned_to) REFERENCES users(id)
       );
     `);
-
+      await db.query(`
+  CREATE TABLE IF NOT EXISTS transfers (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  request_id INT,
+  from_station VARCHAR(255),
+  to_station VARCHAR(255),
+  transferred_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (request_id) REFERENCES requests(id) ON DELETE CASCADE
+);
+`);
+console.log('✅ Transfers table ensured');
     // Seed default users
     const users = [
       ['admin', await bcrypt.hash('admin123', 10), 'admin'],

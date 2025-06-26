@@ -13,15 +13,21 @@ module.exports = (db) => {
     next();
   });
 
-  // GET /api/admin/requests
-  router.get('/requests', async (req, res) => {
-    try {
-      const [results] = await db.query('SELECT * FROM requests ORDER BY created_at DESC');
-      res.json(results);
-    } catch (err) {
-      res.status(500).json({ message: 'Failed to fetch requests' });
-    }
-  });
+// GET /api/admin/requests
+router.get('/requests', async (req, res) => {
+  try {
+    const [results] = await db.query(`
+      SELECT r.*, u.username AS assigned_username
+      FROM requests r
+      LEFT JOIN users u ON r.assigned_to = u.id
+      ORDER BY r.created_at DESC
+    `);
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch requests' });
+  }
+});
+
 
   // GET /api/admin/stations
   router.get('/stations', async (req, res) => {
@@ -30,6 +36,21 @@ module.exports = (db) => {
       res.json(results);
     } catch (err) {
       res.status(500).json({ message: 'Failed to fetch stations' });
+    }
+  });
+  // GET /api/admin/police-assignments
+  router.get('/police-assignments', async (req, res) => {
+    try {
+      const [results] = await db.query(`
+      SELECT u.username AS police_username, r.reference_number, r.status
+      FROM users u
+      LEFT JOIN requests r ON u.id = r.assigned_to
+      WHERE u.role = 'police'
+      ORDER BY u.username
+    `);
+      res.json(results);
+    } catch (err) {
+      res.status(500).json({ message: 'Failed to fetch police assignments', error: err.message });
     }
   });
 
@@ -74,6 +95,25 @@ module.exports = (db) => {
         return res.status(400).json({ message: 'Username already exists' });
       }
       res.status(500).json({ message: 'Failed to create controller', error: err.message });
+    }
+  });
+  // GET /documents/:requestId
+  router.get('/documents/:requestId', async (req, res) => {
+    const { requestId } = req.params;
+
+    try {
+      const [results] = await db.query(
+        'SELECT document_paths FROM requests WHERE id = ?',
+        [requestId]
+      );
+
+      if (!results.length) return res.status(404).json({ message: 'Request not found' });
+
+      const paths = results[0].document_paths?.split(',') || [];
+      const urls = paths.map(path => `${req.protocol}://${req.get('host')}/${path}`);
+      res.json({ urls });
+    } catch (err) {
+      res.status(500).json({ message: 'Failed to retrieve documents', error: err.message });
     }
   });
 

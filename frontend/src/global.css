@@ -1,15 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto:wght@300;400;500&display=swap');
 
 :root {
-  --primary: #007bff; 
-  --secondary: #00c4cc; /* Cyan accent */
-  --accent: #ff6b6b; /* Red accent */
-  --bg-light: #f8f9fa; /* Light background */
-  --bg-dark: #1e1e2f; /* Dark background */
-  --bg-card-light: rgba(255, 255, 255, 0.95); /* Light card */
-  --bg-card-dark: rgba(30, 30, 47, 0.9); /* Dark card */
-  --text-light: #2d3436; /* Dark text for light mode */
-  --text-dark: #dfe6e9; /* Light text for dark mode */
+  --primary: #007bff;
+  --secondary: #00c4cc;
+  --accent: #ff6b6b;
+  --bg-light: #f8f9fa;
+  --bg-dark: #1e1e2f;
+  --bg-card-light: rgba(255, 255, 255, 0.95);
+  --bg-card-dark: rgba(30, 30, 47, 0.9);
+  --text-light: #2d3436;
+  --text-dark: #dfe6e9;
   --border-light: rgba(0, 0, 0, 0.1);
   --border-dark: rgba(255, 255, 255, 0.1);
   --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -29,7 +29,7 @@ body {
   line-height: 1.6;
   overflow-x: hidden;
   transition: all 0.3s ease;
-  margin-left: 250px; /* Adjusted to accommodate sidebar width */
+  margin-left: 250px;
 }
 
 body.dark {
@@ -37,7 +37,13 @@ body.dark {
   color: var(--text-dark);
 }
 
-/* NAVBAR */
+@media (max-width: 768px) {
+  body {
+    margin-left: 0;
+  }
+}
+
+/* Navbar */
 .navbar {
   display: flex;
   flex-direction: column;
@@ -57,8 +63,20 @@ body.dark .navbar {
   background: var(--bg-card-dark);
 }
 
+@media (max-width: 768px) {
+  .navbar {
+    width: 100%;
+    height: auto;
+    position: sticky;
+    top: 0;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+  }
+}
+
 .navbar .logo {
-  font-family: 'Poppins', sans-serif;
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--primary);
@@ -72,6 +90,13 @@ body.dark .navbar {
   transform: scale(1.05);
 }
 
+@media (max-width: 768px) {
+  .navbar .logo {
+    font-size: 1.2rem;
+    margin-bottom: 0;
+  }
+}
+
 .navbar .nav-links {
   display: flex;
   flex-direction: column;
@@ -79,8 +104,16 @@ body.dark .navbar {
   gap: 1rem;
 }
 
+@media (max-width: 768px) {
+  .navbar .nav-links {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+}
+
 .navbar .nav-link {
-  font-family: 'Poppins', sans-serif;
   font-weight: 500;
   color: var(--text-light);
   text-decoration: none;
@@ -103,6 +136,14 @@ body.dark .navbar .nav-link:hover {
   background: rgba(0, 123, 255, 0.2);
 }
 
+@media (max-width: 768px) {
+  .navbar .nav-link {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Theme Toggle */
 .theme-toggle-switch {
   position: relative;
   width: 50px;
@@ -153,7 +194,13 @@ body.dark .theme-toggle-switch input:checked + .slider::before {
   transform: translateX(25px);
 }
 
-/* CARDS & FORMS */
+@media (max-width: 768px) {
+  .theme-toggle-switch {
+    margin: 0;
+  }
+}
+
+/* Cards & Forms */
 .page-wrapper {
   min-height: 100vh;
   display: flex;
@@ -185,8 +232,14 @@ body.dark .card {
   color: var(--text-dark);
 }
 
+@media (max-width: 768px) {
+  .card {
+    padding: 1.5rem;
+    margin-left: 0;
+  }
+}
+
 .title {
-  font-family: 'Poppins', sans-serif;
   font-size: 2rem;
   font-weight: 600;
   text-align: center;
@@ -196,6 +249,12 @@ body.dark .card {
 
 body.dark .title {
   color: var(--secondary);
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 1.5rem;
+  }
 }
 
 form {
@@ -208,6 +267,12 @@ form {
   display: grid;
   gap: 1.5rem;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .input-group {
@@ -287,7 +352,7 @@ body.dark button:hover {
   box-shadow: 0 4px 12px rgba(0, 196, 204, 0.3);
 }
 
-/* TABLES */
+/* Tables */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -308,7 +373,6 @@ thead {
 
 th {
   padding: 1rem;
-  font-family: 'Poppins', sans-serif;
   font-weight: 600;
   color: white;
   text-align: left;
@@ -349,7 +413,7 @@ td button {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  background-image: none; 
+  background-image: none;
 }
 
 body.dark td select,
@@ -380,7 +444,146 @@ body.dark td button:hover {
   background: var(--secondary);
 }
 
-/* ANIMATIONS */
+@media (max-width: 768px) {
+  table {
+    font-size: 0.9rem;
+  }
+
+  th,
+  td {
+    padding: 0.8rem;
+  }
+}
+
+/* Metrics Grid */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.metric-card {
+  background: var(--bg-card-light);
+  color: var(--text-light);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  text-align: center;
+  transition: transform 0.2s ease-in-out;
+}
+
+body.dark .metric-card {
+  background: var(--bg-card-dark);
+  color: var(--text-dark);
+}
+
+.metric-card:hover {
+  transform: translateY(-4px);
+}
+
+.metric-card h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: #555;
+}
+
+body.dark .metric-card h3 {
+  color: #aaa;
+}
+
+.metric-card p {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #2a9d8f;
+}
+
+/* Police Assignments */
+.police-grid,
+.police-flex {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: flex-start;
+  max-width: 1300px;
+  margin-top: 2rem;
+  padding: 0 2rem;
+}
+
+.police-card {
+  background: var(--bg-card-light);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+body.dark .police-card {
+  background: var(--bg-card-dark);
+  border: 1px solid var(--border-dark);
+  color: var(--text-dark);
+}
+
+.police-card:hover {
+  background-color: rgba(0, 123, 255, 0.05);
+  transform: translateY(-4px);
+}
+
+body.dark .police-card:hover {
+  background-color: rgba(0, 196, 204, 0.05);
+}
+
+.police-card h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: var(--primary);
+}
+
+body.dark .police-card h3 {
+  color: var(--secondary);
+}
+
+.police-card ul {
+  margin-top: 0.8rem;
+  list-style: none;
+  padding-left: 0;
+}
+
+.police-card li {
+  font-size: 0.9rem;
+  color: var(--text-light);
+  padding: 0.25rem 0;
+}
+
+body.dark .police-card li {
+  color: var(--text-dark);
+}
+
+.assignment-details {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: rgba(0, 123, 255, 0.95);
+  color: white;
+  padding: 1rem;
+  border-radius: 12px;
+  height: 100%;
+  width: 100%;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s ease;
+  z-index: 10;
+  overflow-y: auto;
+}
+
+.police-card:hover .assignment-details {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Animations */
 @keyframes slideIn {
   from {
     transform: translateX(-20px);
@@ -408,59 +611,4 @@ body.dark td button:hover {
   25% { transform: translateX(-4px); }
   50% { transform: translateX(4px); }
   75% { transform: translateX(-4px); }
-}
-
-/* RESPONSIVE */
-@media (max-width: 768px) {
-  body {
-    margin-left: 0;
-  }
-
-  .navbar {
-    width: 100%;
-    height: auto;
-    position: sticky;
-    top: 0;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-  }
-
-  .navbar .logo {
-    font-size: 1.2rem;
-    margin-bottom: 0;
-  }
-
-  .navbar .nav-links {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.5rem;
-  }
-
-  .navbar .nav-link {
-    padding: 0.5rem;
-    font-size: 0.9rem;
-  }
-
-  .theme-toggle-switch {
-    margin: 0;
-  }
-
-  .card {
-    padding: 1.5rem;
-  }
-
-  .grid {
-    grid-template-columns: 1fr;
-  }
-
-  table {
-    font-size: 0.9rem;
-  }
-
-  th, td {
-    padding: 0.8rem;
-  }
 }

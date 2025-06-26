@@ -81,6 +81,25 @@ module.exports = (db) => {
       res.status(500).json({ message: 'Status update failed', error: err.message });
     }
   });
+  // GET /documents/:requestId
+  router.get('/documents/:requestId', async (req, res) => {
+    const { requestId } = req.params;
+
+    try {
+      const [results] = await db.query(
+        'SELECT document_paths FROM requests WHERE id = ?',
+        [requestId]
+      );
+
+      if (!results.length) return res.status(404).json({ message: 'Request not found' });
+
+      const paths = results[0].document_paths?.split(',') || [];
+      const urls = paths.map(path => `${req.protocol}://${req.get('host')}/${path}`);
+      res.json({ urls });
+    } catch (err) {
+      res.status(500).json({ message: 'Failed to retrieve documents', error: err.message });
+    }
+  });
 
   return router;
 };
