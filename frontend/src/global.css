@@ -29,6 +29,7 @@ body {
   line-height: 1.6;
   overflow-x: hidden;
   transition: all 0.3s ease;
+  margin-left: 250px; /* Adjusted to accommodate sidebar width */
 }
 
 body.dark {
@@ -39,13 +40,15 @@ body.dark {
 /* NAVBAR */
 .navbar {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem 2rem;
+  flex-direction: column;
+  width: 250px;
+  height: 100vh;
+  padding: 2rem 1rem;
   background: var(--bg-card-light);
   box-shadow: var(--shadow);
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
   z-index: 1000;
   animation: slideIn 0.5s ease-out;
 }
@@ -56,10 +59,12 @@ body.dark .navbar {
 
 .navbar .logo {
   font-family: 'Poppins', sans-serif;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   font-weight: 600;
   color: var(--primary);
   text-decoration: none;
+  margin-bottom: 2rem;
+  text-align: center;
   transition: transform 0.3s ease;
 }
 
@@ -69,8 +74,9 @@ body.dark .navbar {
 
 .navbar .nav-links {
   display: flex;
-  align-items: center;
-  gap: 1.5rem;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
 }
 
 .navbar .nav-link {
@@ -78,9 +84,10 @@ body.dark .navbar {
   font-weight: 500;
   color: var(--text-light);
   text-decoration: none;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1rem;
   border-radius: 8px;
   transition: all 0.3s ease;
+  text-align: center;
 }
 
 body.dark .navbar .nav-link {
@@ -89,7 +96,7 @@ body.dark .navbar .nav-link {
 
 .navbar .nav-link:hover {
   background: rgba(0, 123, 255, 0.1);
-  transform: translateY(-2px);
+  transform: translateX(5px);
 }
 
 body.dark .navbar .nav-link:hover {
@@ -100,6 +107,7 @@ body.dark .navbar .nav-link:hover {
   position: relative;
   width: 50px;
   height: 25px;
+  margin: 1rem auto;
 }
 
 .theme-toggle-switch input {
@@ -168,6 +176,7 @@ body.dark .page-wrapper {
   box-shadow: var(--shadow);
   animation: fadeSlide 0.6s ease-out;
   border: 1px solid var(--border-light);
+  margin-left: 100px;
 }
 
 body.dark .card {
@@ -374,11 +383,11 @@ body.dark td button:hover {
 /* ANIMATIONS */
 @keyframes slideIn {
   from {
-    transform: translateY(-20px);
+    transform: translateX(-20px);
     opacity: 0;
   }
   to {
-    transform: translateY(0);
+    transform: translateX(0);
     opacity: 1;
   }
 }
@@ -403,15 +412,40 @@ body.dark td button:hover {
 
 /* RESPONSIVE */
 @media (max-width: 768px) {
+  body {
+    margin-left: 0;
+  }
+
   .navbar {
+    width: 100%;
+    height: auto;
+    position: sticky;
+    top: 0;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
     padding: 1rem;
-    flex-direction: column;
-    gap: 1rem;
+  }
+
+  .navbar .logo {
+    font-size: 1.2rem;
+    margin-bottom: 0;
   }
 
   .navbar .nav-links {
+    flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .navbar .nav-link {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .theme-toggle-switch {
+    margin: 0;
   }
 
   .card {

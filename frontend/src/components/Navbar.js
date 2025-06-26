@@ -47,10 +47,10 @@ const Navbar = () => {
               style={{
                 background: 'linear-gradient(90deg, #00d4ff, #7b00ff)',
                 color: '#fff',
-                padding: '0.6rem 1.2rem',
+                padding: '0.75rem 1rem',
                 borderRadius: '8px',
                 textDecoration: 'none',
-                marginRight: '1rem',
+                textAlign: 'center',
                 boxShadow: '0 0 10px rgba(0, 212, 255, 0.3)',
               }}
             >
@@ -62,10 +62,10 @@ const Navbar = () => {
               style={{
                 background: 'linear-gradient(90deg, #00d4ff, #7b00ff)',
                 color: '#fff',
-                padding: '0.6rem 1.2rem',
+                padding: '0.75rem 1rem',
                 borderRadius: '8px',
                 textDecoration: 'none',
-                marginRight: '1rem',
+                textAlign: 'center',
                 boxShadow: '0 0 10px rgba(0, 212, 255, 0.3)',
               }}
             >
@@ -81,10 +81,10 @@ const Navbar = () => {
             style={{
               background: 'linear-gradient(90deg, #00d4ff, #7b00ff)',
               color: '#fff',
-              padding: '0.6rem 1.2rem',
+              padding: '0.75rem 1rem',
               borderRadius: '8px',
               textDecoration: 'none',
-              marginRight: '1rem',
+              textAlign: 'center',
               boxShadow: '0 0 10px rgba(0, 212, 255, 0.3)',
             }}
           >
@@ -99,10 +99,11 @@ const Navbar = () => {
             style={{
               background: 'linear-gradient(90deg, #ff00ff, #7b00ff)',
               color: '#fff',
-              padding: '0.6rem 1.2rem',
+              padding: '0.75rem 1rem',
               border: 'none',
               borderRadius: '8px',
               cursor: 'pointer',
+              textAlign: 'center',
               boxShadow: '0 0 10px rgba(255, 0, 255, 0.3)',
             }}
           >
