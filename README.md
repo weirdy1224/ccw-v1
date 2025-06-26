@@ -11,3 +11,6 @@ _npm start_<br/>
 **Open another terminal**<br/>
 _cd backend_<br/>
 _node index.js_<br/>
+
+<br/>
+**_CHANGE THE .env as per your SQL db login creds_**
