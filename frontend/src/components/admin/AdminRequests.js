@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const AdminRequests = () => {
+const ControllerRequests = () => {
   const [requests, setRequests] = useState([]);
   const [stations, setStations] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
@@ -37,19 +37,21 @@ const AdminRequests = () => {
           headers: { Authorization: `Bearer ${token}` }
         }
       );
-      fetchData(); // refresh assignments after success
+      fetchData();
     } catch (err) {
       console.error('Failed to assign request:', err.response?.data || err.message);
     }
   };
 
-  const renderDocuments = (docs) => {
-    if (!docs || docs.length === 0) return <p>No documents</p>;
+  const renderDocuments = (docPaths) => {
+    if (!docPaths) return <p>No documents</p>;
+
+    const docs = docPaths.split(',');
 
     return (
       <div className="docs-preview-container">
         {docs.map((doc, i) => {
-          const url = doc.url || `/uploads/${doc}`;
+          const url = `${window.location.origin}/${doc}`;
           const isImage = /\.(jpeg|jpg|png|webp|gif)$/i.test(url);
 
           return (
@@ -58,7 +60,7 @@ const AdminRequests = () => {
                 {isImage ? (
                   <img src={url} alt={`doc-${i}`} className="doc-thumb" />
                 ) : (
-                  <div className="doc-filename">{doc.name || `Document ${i + 1}`}</div>
+                  <div className="doc-filename">{`Document ${i + 1}`}</div>
                 )}
               </a>
             </div>
@@ -122,7 +124,7 @@ const AdminRequests = () => {
                         <p><strong>ID Proof Type:</strong> {req.id_proof_type}</p>
 
                         <h4>Uploaded Documents</h4>
-                        {renderDocuments(req.documents)}
+                        {renderDocuments(req.document_paths)}
                       </div>
                     </td>
                   </tr>
@@ -136,4 +138,4 @@ const AdminRequests = () => {
   );
 };
 
-export default AdminRequests;
+export default ControllerRequests;

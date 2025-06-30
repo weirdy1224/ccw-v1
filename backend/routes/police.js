@@ -13,14 +13,13 @@ module.exports = (db) => {
   });
 
   // ✅ Fetch assigned requests
-router.get('/requests', async (req, res) => {
+router.get('/requests', auth, async (req, res) => {
   try {
-    const [results] = await db.query(`
-      SELECT r.*, u.username AS assigned_username
-      FROM requests r
-      LEFT JOIN users u ON r.assigned_to = u.id
-      ORDER BY r.created_at DESC
-    `);
+    const userId = req.user.id; // assuming user object is added via auth middleware
+    const [results] = await db.query(
+      'SELECT * FROM requests WHERE assigned_to = ? ORDER BY created_at DESC',
+      [userId]
+    );
     res.json(results);
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch requests' });
