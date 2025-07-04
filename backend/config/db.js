@@ -39,7 +39,7 @@ async function connectToDatabase() {
         id INT AUTO_INCREMENT PRIMARY KEY,
         username VARCHAR(255) UNIQUE,
         password VARCHAR(255),
-        role ENUM('admin', 'controller', 'police') DEFAULT 'police'
+        role ENUM('admin', 'controller', 'police','sp') DEFAULT 'police'
       );
     `);
 
@@ -68,22 +68,12 @@ async function connectToDatabase() {
         FOREIGN KEY (assigned_to) REFERENCES users(id)
       );
     `);
-      await db.query(`
-  CREATE TABLE IF NOT EXISTS transfers (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  request_id INT,
-  from_station VARCHAR(255),
-  to_station VARCHAR(255),
-  transferred_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (request_id) REFERENCES requests(id) ON DELETE CASCADE
-);
-`);
-console.log('✅ Transfers table ensured');
     // Seed default users
     const users = [
       ['admin', await bcrypt.hash('admin123', 10), 'admin'],
       ['controller1', await bcrypt.hash('controller123', 10), 'controller'],
       ['police1', await bcrypt.hash('police123', 10), 'police'],
+      ['sp1', await bcrypt.hash('sp123', 10), 'sp'],
     ];
 
     await db.query(

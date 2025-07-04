@@ -10,7 +10,7 @@ const validationSchema = Yup.object({
   account_type: Yup.string().required('Required'),
   account_ownership: Yup.string().required('Required'),
   account_number: Yup.string().matches(/^\d{9,18}$/, 'Account number must be 9–18 digits').required('Required'),
-  ncrp_ack_number: Yup.string().required('Required'),
+  ncrp_ack_number: Yup.string().matches(/^329/,'Must start with 329 if inside Tamil Nadu, else contact other state police'),
   // account_opening_year: Yup.string().matches(/^\d{4}$/, 'Year must be a 4-digit number').test('valid-year', 'Enter a valid year', val => {
   //     const year = Number(val);return year > 1900 && year <= new Date().getFullYear();
   //   }).required('Required'),

@@ -32,6 +32,14 @@ import './global.css';
 import PoliceRequests from './components/police/PoliceRequests';
 import PoliceDocuments from './components/police/PoliceDocuments';
 
+import SPCreateController from './components/sp/SPCreateController';
+import SPCreatePolice from './components/sp/SPCreatePolice';
+import SpDashboard from './components/sp/SpDashboard';
+import SPDocuments from './components/sp/SpDocuments';
+import SPPoliceAssignments from './components/sp/SPPoliceAssignments';
+import SPRequests from './components/sp/SpRequests';
+import SPSearchRequests from './components/sp/SPSearchRequests';
+import SPPoliceLogin from './components/SpLogin';
 
 const App = () => {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
@@ -53,10 +61,16 @@ const App = () => {
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/controller/login" element={<ControllerLogin />} />
         <Route path="/police/login" element={<PoliceLogin />} />
+        <Route path="/sp/login" element={<SPPoliceLogin />} />
 
         <Route path="/admin/dashboard" element={
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/sp/dashboard" element={
+          <ProtectedRoute allowedRoles={['sp']}>
+            <SpDashboard />
           </ProtectedRoute>
         } />
         <Route path="/admin/create-controller" element={
@@ -64,9 +78,19 @@ const App = () => {
             <CreateController />
           </ProtectedRoute>
         } />
+        <Route path="/sp/create-controller" element={
+          <ProtectedRoute allowedRoles={['sp']}>
+            <SPCreateController />
+          </ProtectedRoute>
+        } />
         <Route path="/admin/create-police" element={
           <ProtectedRoute allowedRoles={['admin']}>
             <CreatePolice />
+          </ProtectedRoute>
+        } />
+        <Route path="/sp/create-police" element={
+          <ProtectedRoute allowedRoles={['sp']}>
+            <SPCreateController />
           </ProtectedRoute>
         } />
         <Route path="/controller/create-police" element={
@@ -84,6 +108,11 @@ const App = () => {
             <SearchRequests />
           </ProtectedRoute>
         } />
+        <Route path="/sp/search" element={
+          <ProtectedRoute allowedRoles={['sp']}>
+            <SPSearchRequests />
+          </ProtectedRoute>
+        } />
         <Route path="/controller/search" element={
           <ProtectedRoute allowedRoles={['controller']}>
             <ContSearchRequests />
@@ -94,6 +123,11 @@ const App = () => {
             <PoliceAssignments />
           </ProtectedRoute>
         } />
+        <Route path="/sp/police-assignments" element={
+          <ProtectedRoute allowedRoles={['sp']}>
+            <SPPoliceAssignments />
+          </ProtectedRoute>
+        } />
         <Route path="/controller/police-assignments" element={
           <ProtectedRoute allowedRoles={['controller']}>
             <ContPoliceAssignments />
@@ -102,6 +136,11 @@ const App = () => {
         <Route path="/admin/requests" element={
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminRequests />
+          </ProtectedRoute>
+        } />
+        <Route path="/sp/requests" element={
+          <ProtectedRoute allowedRoles={['sp']}>
+            <SPRequests />
           </ProtectedRoute>
         } />
         <Route path="/controller/requests" element={
@@ -117,6 +156,11 @@ const App = () => {
         <Route path="/admin/documents" element={
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminDocuments />
+          </ProtectedRoute>
+        } />
+        <Route path="/sp/documents" element={
+          <ProtectedRoute allowedRoles={['sp']}>
+            <SPDocuments />
           </ProtectedRoute>
         } />
         <Route path="/controller/documents" element={

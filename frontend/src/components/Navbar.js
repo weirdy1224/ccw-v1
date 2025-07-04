@@ -34,6 +34,7 @@ const Navbar = () => {
             <Link to="/admin/login" className="nav-link">Admin</Link>
             <Link to="/controller/login" className="nav-link">Controller</Link>
             <Link to="/police/login" className="nav-link">Police</Link>
+            <Link to="/sp/login" className='nav-link'>SP Login</Link>
           </>
         )}
 
@@ -46,6 +47,17 @@ const Navbar = () => {
             <Link to="/admin/police-assignments" className="nav-link">Police Assignments</Link>
             <Link to="/admin/requests" className="nav-link">User Requests</Link>
             <Link to="/admin/documents" className="nav-link">View Documents</Link>
+          </>
+        )}
+        {role === 'sp' && (
+          <>
+            <Link to="/SP/dashboard" className="nav-link">Dashboard</Link>
+            <Link to="/SP/search" className="nav-link">Search Request</Link>
+            <Link to="/SP/create-controller" className="nav-link">Create Controller</Link>
+            <Link to="/SP/create-police" className="nav-link">Create Police</Link>
+            <Link to="/SP/police-assignments" className="nav-link">Police Assignments</Link>
+            <Link to="/SP/requests" className="nav-link">User Requests</Link>
+            <Link to="/SP/documents" className="nav-link">View Documents</Link>
           </>
         )}
 

@@ -1,61 +1,59 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const PoliceRequests = () => {
+const SPRequests = () => {
   const [requests, setRequests] = useState([]);
+  const [stations, setStations] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
-  const [modal, setModal] = useState({ visible: false, type: '', requestId: null });
-  const [remark, setRemark] = useState('');
   const token = localStorage.getItem('token');
 
-  const fetchRequests = async () => {
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
     try {
-      const res = await axios.get('/api/police/requests', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setRequests(res.data);
+      const [reqRes, stationRes] = await Promise.all([
+        axios.get('/api/sp/requests', {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        axios.get('/api/sp/stations', {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      ]);
+      setRequests(reqRes.data);
+      setStations(stationRes.data);
     } catch (err) {
-      console.error('Error loading police requests:', err);
+      console.error('Error fetching data:', err);
     }
   };
 
-  useEffect(() => {
-    fetchRequests();
-  }, []);
-
-  const handleActionClick = (type, requestId) => {
-    setModal({ visible: true, type, requestId });
-    setRemark('');
-  };
-
-  const submitRemark = async () => {
-    const { requestId, type } = modal;
+  const assignRequest = async (requestId, stationId) => {
     try {
-      await axios.post('/api/police/status', {
-        requestId,
-        status: type,
-        reason: remark
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      setModal({ visible: false, type: '', requestId: null });
-      setRemark('');
-      fetchRequests();
+      await axios.post(
+        '/api/sp/assign',
+        { requestId, stationId },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      fetchData();
     } catch (err) {
-      console.error('Failed to update status:', err);
+      console.error('Failed to assign request:', err.response?.data || err.message);
     }
   };
 
   const renderDocuments = (docPaths) => {
     if (!docPaths) return <p>No documents</p>;
+
     const docs = docPaths.split(',');
 
     return (
       <div className="docs-preview-container">
         {docs.map((doc, i) => {
           const url = `${window.location.origin}/${doc}`;
-          const isImage = /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
+          const isImage = /\.(jpeg|jpg|png|webp|gif)$/i.test(url);
+
           return (
             <div className="doc-item" key={i}>
               <a href={url} target="_blank" rel="noopener noreferrer">
@@ -75,45 +73,41 @@ const PoliceRequests = () => {
   return (
     <div className="page-wrapper">
       <div className="card">
-        <h2 className="title">Police Dashboard</h2>
+        <h2 className="title">All Requests</h2>
         <table>
           <thead>
             <tr>
+              <th>Reference #</th>
               <th>Name</th>
-              <th>Reference</th>
               <th>Status</th>
-              <th>Update</th>
+              <th>Assign To</th>
             </tr>
           </thead>
           <tbody>
-            {requests.map(req => (
+            {requests.map((req) => (
               <React.Fragment key={req.id}>
                 <tr
                   onClick={() => setExpandedRow(expandedRow === req.id ? null : req.id)}
                   style={{ cursor: 'pointer' }}
                 >
-                  <td>{req.name}</td>
                   <td>{req.reference_number}</td>
+                  <td>{req.name}</td>
                   <td>{req.status}</td>
                   <td>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleActionClick('Completed', req.id);
-                      }}
+                    <select
+                      value={req.assigned_to || ''}
+                      onChange={(e) => assignRequest(req.id, e.target.value)}
                     >
-                      Mark Completed
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleActionClick('Rejected', req.id);
-                      }}
-                    >
-                      Reject
-                    </button>
+                      <option value="">Unassigned</option>
+                      {stations.map((st) => (
+                        <option key={st.id} value={st.id}>
+                          {st.username}
+                        </option>
+                      ))}
+                    </select>
                   </td>
                 </tr>
+
                 {expandedRow === req.id && (
                   <tr>
                     <td colSpan="4">
@@ -140,31 +134,8 @@ const PoliceRequests = () => {
           </tbody>
         </table>
       </div>
-
-      {/* Modal */}
-      {modal.visible && (
-        <div className="modal-overlay">
-          <div className="modal-box">
-            <h3>{modal.type === 'Completed' ? 'Mark as Completed' : 'Reject Request'}</h3>
-            <textarea
-              rows="4"
-              placeholder="Enter remarks..."
-              value={remark}
-              onChange={(e) => setRemark(e.target.value)}
-            ></textarea>
-            <div className="modal-actions">
-              <button onClick={submitRemark}>
-                {modal.type === 'Completed' ? 'Confirm Completion' : 'Confirm Rejection'}
-              </button>
-              <button onClick={() => setModal({ visible: false, type: '', requestId: null })}>
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
-export default PoliceRequests;
+export default SPRequests;

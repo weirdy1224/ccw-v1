@@ -8,17 +8,17 @@ const SPPoliceLogin = () => {
   return (
     <section className="page-wrapper">
       <div className="card">
-        <h2 className="title">Admin Login</h2>
+        <h2 className="title">SP Login</h2>
         <Formik
           initialValues={{ username: '', password: '' }}
           onSubmit={async (values, { setSubmitting }) => {
             try {
               const res = await axios.post('/api/auth/login', values);
 
-              if (res.data.role === 'admin') {
+              if (res.data.role === 'sp') {
                 localStorage.setItem('token', res.data.token);
                 localStorage.setItem('role', res.data.role);
-                navigate('/admin/dashboard');
+                navigate('/sp/dashboard');
               } else {
                 alert('Access denied: You are not authorized as a police user');
               }
