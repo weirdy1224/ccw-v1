@@ -24,12 +24,16 @@ const SearchRequests = () => {
   }, [token]);
 
   const filtered = query
-    ? requests.filter(
-        req =>
-          req.name?.toLowerCase().includes(query.toLowerCase()) ||
-          req.reference_number?.toLowerCase().includes(query.toLowerCase())
-      )
-    : [];
+  ? requests.filter(req => {
+      const q = query.toLowerCase();
+      return (
+        req.name?.toLowerCase().includes(q) ||
+        req.reference_number?.toLowerCase().includes(q) ||
+        req.mobile?.toLowerCase().includes(q) 
+      );
+    })
+  : [];
+
 
   return (
     <div className="page-wrapper">
@@ -40,7 +44,7 @@ const SearchRequests = () => {
           <input
             type="text"
             className="search-bar"
-            placeholder="Search by Name or Reference #"
+            placeholder="Search by Name or Reference # or Mobile Number"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />

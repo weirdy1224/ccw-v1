@@ -2,7 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const sendMail = require('../mailer'); // Email module
-
+const { getConnection } = require('../config/db');
 module.exports = (db) => {
   const router = express.Router();
 
@@ -120,6 +120,17 @@ module.exports = (db) => {
       res.status(500).json({ error: 'Failed to complete request' });
     }
   });
-
+router.get('/pending-assigned-count', async (req, res) => {
+  try {
+    const db = getConnection();
+    const [rows] = await db.query(
+      "SELECT COUNT(*) as count FROM requests WHERE status = 'Pending' AND assigned_to IS NOT NULL"
+    );
+    res.json({ pendingAssigned: rows[0].count });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Database query failed' });
+  }
+});
   return router;
 };

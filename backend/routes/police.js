@@ -1,6 +1,9 @@
 const express = require('express');
 const auth = require('../middleware/auth');
-const sendMail = require('../mailer'); // ✅ Add this line
+const {
+  sendDefreezeApprovedEmail,
+  sendDefreezeRejectedEmail
+} = require('../services/emailService.js'); // ✅ Updated import
 
 module.exports = (db) => {
   const router = express.Router();
@@ -13,18 +16,20 @@ module.exports = (db) => {
   });
 
   // ✅ Fetch assigned requests
-router.get('/requests', auth, async (req, res) => {
-  try {
-    const userId = req.user.id; // assuming user object is added via auth middleware
-    const [results] = await db.query(
-      'SELECT * FROM requests WHERE assigned_to = ? ORDER BY created_at DESC',
-      [userId]
-    );
-    res.json(results);
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch requests' });
-  }
-});
+  router.get('/requests', auth, async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const [results] = await db.query(
+        'SELECT * FROM requests WHERE assigned_to = ? ORDER BY created_at DESC',
+        [userId]
+      );
+      res.json(results);
+    } catch (err) {
+      res.status(500).json({ message: 'Failed to fetch requests' });
+    }
+  });
+
+  // ✅ Get police stations
   router.get('/stations', async (req, res) => {
     try {
       const [results] = await db.query('SELECT id, username FROM users WHERE role = "police"');
@@ -33,7 +38,8 @@ router.get('/requests', auth, async (req, res) => {
       res.status(500).json({ message: 'Failed to fetch stations' });
     }
   });
-  // ✅ Update status + send email if Completed/Rejected
+
+  // ✅ Update request status and trigger mail
   router.post('/status', async (req, res) => {
     const { requestId, status, reason } = req.body;
 
@@ -42,7 +48,6 @@ router.get('/requests', auth, async (req, res) => {
     }
 
     try {
-      // Fetch the request
       const [rows] = await db.query(
         'SELECT * FROM requests WHERE id = ? AND assigned_to = ?',
         [requestId, req.user.id]
@@ -54,32 +59,35 @@ router.get('/requests', auth, async (req, res) => {
 
       const request = rows[0];
 
-      // Update the status
-      const [result] = await db.query(
+      // Update request status in DB
+      await db.query(
         'UPDATE requests SET status = ?, status_reason = ? WHERE id = ?',
         [status, reason, requestId]
       );
 
       console.log(`🔁 Updated request ${request.reference_number} to ${status}`);
 
-      // ✅ Send email based on status
+      // ✅ Use mailer functions
       if (status === 'Completed') {
-        await sendMail(
-          request.email,
-          'Request Completed',
-          `<p>Dear ${request.name},</p>
-           <p>Your unfreeze request (Ref: <strong>${request.reference_number}</strong>) has been <strong>Completed</strong> by the police station.</p>
-           <p><strong>Remarks:</strong> ${reason || 'N/A'}</p>`
-        );
+        await sendDefreezeApprovedEmail({
+          toEmail: request.email,
+          userName: request.name,
+          requestId: request.reference_number,
+          accountLast4: request.account_number?.slice(-4) || 'XXXX',
+          date: new Date().toLocaleDateString('en-IN')
+        });
         console.log(`✅ Completion mail sent to ${request.email}`);
       } else if (status === 'Rejected') {
-        await sendMail(
-          request.email,
-          'Request Rejected',
-          `<p>Dear ${request.name},</p>
-           <p>Your unfreeze request (Ref: <strong>${request.reference_number}</strong>) has been <strong>Rejected</strong>.</p>
-           <p><strong>Reason:</strong> ${reason || 'Not specified'}</p>`
-        );
+        await sendDefreezeRejectedEmail({
+          toEmail: request.email,
+          userName: request.name,
+          requestId: request.reference_number,
+          accountLast4: request.account_number?.slice(-4) || 'XXXX',
+          reason: reason || 'Not specified',
+          portalLink: 'https://unfree.portal.com', // 🔁 Customize this
+          ioContact: 'cybercell@example.com / +91-9999999999', // 🔁 Customize this
+          authorityName: 'SP Cyber Cell'
+        });
         console.log(`✅ Rejection mail sent to ${request.email}`);
       }
 
@@ -89,7 +97,8 @@ router.get('/requests', auth, async (req, res) => {
       res.status(500).json({ message: 'Status update failed', error: err.message });
     }
   });
-  // GET /documents/:requestId
+
+  // ✅ Fetch uploaded documents
   router.get('/documents/:requestId', async (req, res) => {
     const { requestId } = req.params;
 

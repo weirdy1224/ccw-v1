@@ -23,11 +23,6 @@ const PoliceRequests = () => {
     fetchRequests();
   }, []);
 
-  const handleActionClick = (type, requestId) => {
-    setModal({ visible: true, type, requestId });
-    setRemark('');
-  };
-
   const submitRemark = async () => {
     const { requestId, type } = modal;
     try {
@@ -48,29 +43,55 @@ const PoliceRequests = () => {
   };
 
   const renderDocuments = (docPaths) => {
-    if (!docPaths) return <p>No documents</p>;
-    const docs = docPaths.split(',');
+  if (!docPaths) return <p>No documents</p>;
+  const docs = docPaths.split(',');
 
-    return (
-      <div className="docs-preview-container">
-        {docs.map((doc, i) => {
-          const url = `${window.location.origin}/${doc}`;
-          const isImage = /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
-          return (
-            <div className="doc-item" key={i}>
-              <a href={url} target="_blank" rel="noopener noreferrer">
-                {isImage ? (
-                  <img src={url} alt={`doc-${i}`} className="doc-thumb" />
-                ) : (
-                  <div className="doc-filename">{`Document ${i + 1}`}</div>
-                )}
-              </a>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
+  return (
+    <div className="docs-preview-container">
+      {docs.map((doc, i) => {
+        const url = `${window.location.origin}/${doc}`;
+        const isImage = /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
+        return (
+          <div className="doc-item" key={i}>
+            <a href={url} target="_blank" rel="noopener noreferrer">
+              {isImage ? (
+                <img
+                  src={url}
+                  alt={`doc-${i}`}
+                  className="doc-thumb"
+                  style={{
+                    width: '160px',
+                    height: '160px',
+                    objectFit: 'contain',
+                    borderRadius: '6px',
+                    boxShadow: '0 0 5px rgba(0,0,0,0.1)',
+                    backgroundColor: '#fff'
+                  }}
+                />
+              ) : (
+                <div className="doc-filename">{`Document ${i + 1}`}</div>
+              )}
+            </a>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+const handleActionClick = (type, requestId) => {
+  const req = requests.find(r => r.id === requestId);
+  if (!req) return;
+
+  // If already finalized
+  if (['Completed', 'Rejected'].includes(req.status)) {
+    const confirm = window.confirm(`This request is already marked as ${req.status}. Proceed to update status?`);
+    if (!confirm) return;
+  }
+
+  setModal({ visible: true, type, requestId });
+  setRemark('');
+};
 
   return (
     <div className="page-wrapper">

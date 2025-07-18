@@ -1,11 +1,12 @@
-import React from 'react';
-
 const PendingCases = ({ requests }) => {
-  const pending = requests.filter(req => req.status === 'Pending').length;
+  const pendingAssigned = requests.filter(
+    req => req.status === 'Pending' && req.assigned_to // <-- use _not_ camelCase if not mapped!
+  ).length;
+
   return (
     <div className="metric-card">
-      <h4>Pending Police Cases</h4>
-      <p>{pending}</p>
+      <h4>Pending Assigned Police Cases</h4>
+      <p>{pendingAssigned}</p>
     </div>
   );
 };
