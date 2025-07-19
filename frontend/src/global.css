@@ -186,11 +186,11 @@ body.dark .theme-toggle-switch .slider {
   transition: transform 0.4s ease;
 }
 
-.theme-toggle-switch input:checked + .slider::before {
+.theme-toggle-switch input:checked+.slider::before {
   transform: translateX(25px);
 }
 
-body.dark .theme-toggle-switch input:checked + .slider::before {
+body.dark .theme-toggle-switch input:checked+.slider::before {
   transform: translateX(25px);
 }
 
@@ -497,91 +497,332 @@ body.dark .metric-card h3 {
   font-weight: bold;
   color: #2a9d8f;
 }
+/*overall reports*/
+.admin-overall-reports { padding: 32px 0; }
+.reports-title { font-size: 2rem; margin-bottom: 1.5em; font-weight: bold;margin-left: 200px; }
+.reports-section { margin-left: 200px;background: #fff; margin-bottom: 2.2em; padding: 2em 2em 2em 2em; border-radius: 15px; box-shadow: 0 2px 12px 0 rgba(44,62,80,.045); }
+body.dark .reports-section { background: #21213a; color: #f4f6fd; }
+.reports-section h3 { font-size: 1.27rem; font-weight: 600; margin-bottom: 1.2em;}
+.reports-legend {margin-top:1em;}
+.reports-filters-row { display: flex; flex-wrap:wrap; align-items:center; gap:15px; margin-bottom:22px; }
+.reports-filter-clear { padding: 7px 20px; margin-left: 10px; border-radius:6px; border: 0; background: #ffeaea; color: #b44; cursor: pointer; }
+.reports-datepicker { max-width: 120px; margin-left: 4px; background: #f6f7fa; border: 1px solid #eee; border-radius: 5px; }
+.reports-summary-numbers { margin-top: 20px; color: #387; font-size: 1.07em;}
+.reports-table-scroll { overflow-x: auto; }
+.reports-table { width: 100%; border-radius: 14px; box-shadow: 0 1.5px 5px 0 rgba(44,62,80,.09); border-collapse: separate; border-spacing: 0; margin-top:10px;}
+.reports-table th, .reports-table td { padding: 12px 16px; }
+.reports-table th { background: linear-gradient(90deg,#007bff 0%,#00c4cc 100%); color:#fff; font-weight: 600; }
+.reports-table tbody tr { background: #fcfdff;}
+body.dark .reports-table tbody tr { background:#232339; color:#fff;}
+.reports-table tr:nth-child(even) { background: #f0f5fd;}
+.reports-table td, .reports-table th { border-bottom: 1px solid #e2e3ee; }
+.reports-table tr:last-child td { border-bottom: none;}
+.reports-aging-highlight { font-size: 1.25em; background: #fdebd0; border-radius: 8px; color: #784212; padding: 15px 17px;display:inline-block;margin-bottom:10px;}
 
-/* Police Assignments */
-.police-grid,
-.police-flex {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  justify-content: flex-start;
-  max-width: 1300px;
-  margin-top: 2rem;
-  padding: 0 2rem;
+/*Police Assignment*/
+.pa-wrapper {
+  padding: 2.3rem 1.1rem 2.5rem 1.1rem;
+  max-width: 1160px;
+  margin: 100px;
+  margin-left: 320px;
+
 }
 
-.police-card {
-  background: var(--bg-card-light);
-  border: 1px solid var(--border-light);
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: var(--shadow);
-  transition: all 0.3s ease;
+.pa-header-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 32px;
+  margin-bottom: 12px;
+}
+
+.pa-header-row h2 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 0.01em;
+}
+
+.pa-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  background: none !important;
+}
+
+.pa-table {
+  width: 100%;
+  border-radius: 15px;
+  box-shadow: 0 1.5px 5px 0 rgba(44, 62, 80, .08);
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--bg-card-light, #fff);
+}
+
+body.dark .pa-table {
+  background: var(--bg-card-dark, #202030);
+}
+
+.pa-table th,
+.pa-table td {
+  padding: 15px 20px;
+  text-align: left;
+  color: #222;
+}
+
+body.dark .pa-table th,
+body.dark .pa-table td {
+  color: #ebeef9;
+}
+
+.pa-table th {
+  background: linear-gradient(90deg, var(--primary, #007bff) 0%, var(--secondary, #00c4cc) 100%);
+  color: #fff !important;
+  font-weight: 600;
+  font-size: 1.05rem;
+  user-select: none;
+}
+
+.pa-table th.pa-sortable {
   cursor: pointer;
 }
 
-body.dark .police-card {
-  background: var(--bg-card-dark);
-  border: 1px solid var(--border-dark);
-  color: var(--text-dark);
+.pa-table th:first-child {
+  border-top-left-radius: 15px;
 }
 
-.police-card:hover {
-  background-color: rgba(0, 123, 255, 0.05);
-  transform: translateY(-4px);
+.pa-table th:last-child {
+  border-top-right-radius: 15px;
 }
 
-body.dark .police-card:hover {
-  background-color: rgba(0, 196, 204, 0.05);
+.pa-table tr {
+  transition: background 0.12s;
 }
 
-.police-card h3 {
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
-  color: var(--primary);
+.pa-table-row:hover {
+  background: rgba(0, 123, 255, 0.08);
 }
 
-body.dark .police-card h3 {
-  color: var(--secondary);
+.pa-table td,
+.pa-table th {
+  border-bottom: 1px solid #f0f1ff;
 }
 
-.police-card ul {
-  margin-top: 0.8rem;
-  list-style: none;
-  padding-left: 0;
+.pa-table tr:last-child td {
+  border-bottom: none;
 }
 
-.police-card li {
-  font-size: 0.9rem;
-  color: var(--text-light);
-  padding: 0.25rem 0;
+body.dark .pa-table td,
+body.dark .pa-table th {
+  border-bottom: 1px solid #1a1a2a;
 }
 
-body.dark .police-card li {
-  color: var(--text-dark);
+.pa-table-empty {
+  text-align: center;
+  color: #888;
 }
 
-.assignment-details {
+/* MultiSelect styles */
+.pa-multiselect {
+  position: relative;
+  min-width: 220px;
+}
+
+.pa-multiselect-label {
+  background: #fff;
+  color: #252a42;
+  border: 1px solid #b7becd;
+  border-radius: 7px;
+  padding: 7px 12px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+body.dark .pa-multiselect-label {
+  background: var(--bg-card-dark, #262748);
+  color: #ebeef9;
+  border-color: #35365e;
+}
+
+.pa-multiselect-arrow {
+  float: right;
+}
+
+.pa-multiselect-dropdown {
   position: absolute;
-  top: 0;
-  left: 0;
-  background: rgba(0, 123, 255, 0.95);
-  color: white;
-  padding: 1rem;
-  border-radius: 12px;
-  height: 100%;
+  z-index: 11;
+  background: #fff;
+  border: 1px solid #dedede;
   width: 100%;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.4s ease;
-  z-index: 10;
+  border-radius: 7px;
+  margin-top: 2px;
+  box-shadow: 0 2px 14px rgba(22, 34, 70, 0.06);
+}
+
+body.dark .pa-multiselect-dropdown {
+  background: #202030;
+  border-color: #35365e;
+}
+
+.pa-multiselect-search {
+  width: 95%;
+  margin: 8px;
+  padding: 6px 9px;
+  font-size: 1em;
+  border-radius: 5px;
+  border: 1px solid #e5e4f0;
+}
+
+.pa-multiselect-options {
+  max-height: 200px;
   overflow-y: auto;
 }
 
-.police-card:hover .assignment-details {
-  opacity: 1;
-  visibility: visible;
+.pa-multiselect-option {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6.5px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background .11s;
 }
+
+.pa-multiselect-option--selected,
+.pa-multiselect-option:hover {
+  background: #eef5fe;
+}
+
+body.dark .pa-multiselect-option--selected,
+body.dark .pa-multiselect-option:hover {
+  background: #283048;
+}
+
+.pa-multiselect-actions {
+  padding: 6px 8px;
+  text-align: right;
+  border-top: 1px solid #eee;
+}
+
+.pa-multiselect-actions button {
+  margin-left: 6px;
+  border: none;
+  border-radius: 5px;
+  padding: 4px 11px;
+  background: var(--primary, #007bff);
+  color: #fff;
+  cursor: pointer;
+  font-size: .97em;
+}
+
+.pa-multiselect-actions button:first-child {
+  background: #ccd;
+  color: #444;
+  border: 1px solid #bcd;
+}
+
+/* Modal styles */
+.pa-modal-overlay {
+  position: fixed;
+  z-index: 1011;
+  background: rgba(30, 32, 44, 0.60);
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pa-modal {
+  background: #fff;
+  color: #241f3a;
+  border-radius: 13px;
+  box-shadow: 0 8px 48px rgba(32, 42, 68, 0.13);
+  min-width: 330px;
+  max-width: 98vw;
+  padding: 32px 26px 24px 26px;
+  max-height: 82vh;
+  overflow-y: auto;
+}
+
+body.dark .pa-modal {
+  background: var(--bg-card-dark);
+  color: #ebeef9;
+}
+
+.pa-modal h2 {
+  margin: 0 0 3px 0;
+  color: var(--primary);
+  font-size: 1.32rem;
+}
+
+.pa-modal-station {
+  color: #888;
+  font-size: .98em;
+  font-weight: 400;
+}
+
+.pa-modal-summary {
+  display: flex;
+  gap: 32px;
+  margin: 18px 0 14px 0;
+  font-weight: 500;
+}
+
+.pa-modal-case-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pa-modal-case-list li {
+  background: #edf0f6;
+  margin-bottom: 7px;
+  padding: 8.5px 12px;
+  border-radius: 6px;
+  font-size: 0.97rem;
+}
+
+.pa-modal-case-list .pa-case-reason {
+  color: #aeaeae;
+  margin-left: 8px;
+  font-size: 12px;
+}
+
+body.dark .pa-modal-case-list li {
+  background: #202030;
+}
+
+.pa-case-empty {
+  color: #888;
+  font-style: italic;
+}
+
+.pa-modal-close {
+  padding: 7px 22px;
+  margin-top: 13px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.pa-error {
+  color: #c00;
+  margin-top: 16px;
+}
+
+@media (max-width: 650px) {
+  .pa-modal {
+    padding: 11px 4px;
+  }
+}
+
 
 /* Search Result Card Box */
 .search-results {
@@ -597,6 +838,7 @@ body.dark .police-card li {
   transition: transform 0.3s ease;
   border: 1px solid;
 }
+
 .search-box:hover {
   transform: translateY(-4px);
 }
@@ -634,9 +876,11 @@ body.dark .police-card li {
   border-color: var(--secondary);
   box-shadow: 0 0 10px rgba(0, 196, 204, 0.4);
 }
-body.light .search-bar{
+
+body.light .search-bar {
   color: var(--text-light);
 }
+
 body.light .search-box {
   background: var(--bg-card-light);
   border-color: var(--border-light);
@@ -649,7 +893,9 @@ body.dark .search-box {
   border-color: var(--border-dark);
   color: var(--text-dark);
 
-}body.light .search-box p {
+}
+
+body.light .search-box p {
   color: var(--text-light);
 }
 
@@ -660,6 +906,7 @@ body.dark .search-box p {
 .search-box p strong {
   color: var(--secondary);
 }
+
 .officer-modal-overlay {
   position: fixed;
   top: 0;
@@ -890,6 +1137,7 @@ body.light .modal-box textarea {
   font-size: 0.9rem;
   text-align: center;
 }
+
 .docs-preview-container {
   display: flex;
   flex-wrap: wrap;
@@ -921,7 +1169,7 @@ body.light .modal-box textarea {
   position: relative;
 }
 
-.reports-dropdown > button {
+.reports-dropdown>button {
   color: var(--text-dark);
   background: var(--primary);
   border: none;
@@ -945,10 +1193,11 @@ body.light .modal-box textarea {
   display: flex;
   flex-direction: column;
   padding: 0.5em 0;
+  opacity: 1 !important;
 }
 
 .dropdown-item {
-  color: var(--text-dark);
+  color: var(--text-dark) !important;
   padding: 0.7em 1.2em;
   text-decoration: none;
   transition: background 0.15s, color 0.15s;
@@ -956,36 +1205,65 @@ body.light .modal-box textarea {
   white-space: nowrap;
   border: none;
   background: transparent;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  filter: none !important;
 }
 
-.dropdown-item:hover, .dropdown-item:focus {
+.dropdown-item:hover,
+.dropdown-item:focus {
   background: var(--accent);
-  color: #fff;
+  color: #fff !important;
 }
 
-/* Optional: different background for light theme */
+/* Optional: disabled state */
+.dropdown-item.disabled {
+  color: #bbb !important;
+  opacity: 0.48 !important;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
 body.light .dropdown-menu {
   background: var(--bg-card-light);
   color: var(--text-light);
   border: 1px solid var(--border-light);
+  opacity: 1 !important;
 }
+
 body.light .dropdown-item {
-  color: var(--text-light);
+  color: var(--text-light) !important;
+  opacity: 1 !important;
 }
-body.light .dropdown-item:hover, body.light .dropdown-item:focus {
+
+body.light .dropdown-item:hover,
+body.light .dropdown-item:focus {
   background: var(--primary);
-  color: #fff;
+  color: #fff !important;
 }
+
 
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { transform: translateY(30px); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 
@@ -997,6 +1275,7 @@ body.light .dropdown-item:hover, body.light .dropdown-item:focus {
     transform: translateX(-20px);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -1008,6 +1287,7 @@ body.light .dropdown-item:hover, body.light .dropdown-item:focus {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1015,8 +1295,21 @@ body.light .dropdown-item:hover, body.light .dropdown-item:focus {
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-4px); }
-  50% { transform: translateX(4px); }
-  75% { transform: translateX(-4px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-4px);
+  }
+
+  50% {
+    transform: translateX(4px);
+  }
+
+  75% {
+    transform: translateX(-4px);
+  }
 }

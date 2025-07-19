@@ -19,6 +19,7 @@ import SearchRequests from './components/admin/SearchRequests';
 import PoliceAssignments from './components/admin/PoliceAssignments';
 import AdminRequests from './components/admin/AdminRequests';
 import AdminDocuments from './components/admin/AdminDocuments';
+import AdminOverallReports from './components/admin/AdminOverallReports';
 
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -27,7 +28,7 @@ import ContSearchRequests from './components/controller/ContSearchRequests';
 import ContPoliceAssignments from './components/controller/ContPoliceAssignments';
 import ControllerRequests from './components/controller/ControllerRequests';
 import ControllerDocuments from './components/controller/ControllerDocuments';
-
+import ContOverallReports from './components/controller/ContOverallReports';
 import './global.css';
 import PoliceRequests from './components/police/PoliceRequests';
 import PoliceDocuments from './components/police/PoliceDocuments';
@@ -66,6 +67,16 @@ const App = () => {
         <Route path="/admin/dashboard" element={
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/overall-reports" element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminOverallReports />
+          </ProtectedRoute>
+        } />
+        <Route path="/controller/overall-reports" element={
+          <ProtectedRoute allowedRoles={['controller']}>
+            <ContOverallReports />
           </ProtectedRoute>
         } />
         <Route path="/sp/dashboard" element={
