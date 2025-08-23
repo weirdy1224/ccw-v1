@@ -1,3 +1,4 @@
+// config/db.js
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
@@ -11,19 +12,22 @@ let dbInstance = null;
 
 async function connectToDatabase() {
   try {
-    // Initial connection to create DB if needed
+    // Initial connection without DB selected (to create DB if needed)
     const tempConn = await mysql.createConnection({
       host: DB_HOST,
       user: DB_USER,
       password: DB_PASS,
     });
 
-    console.log('✅ Connected to MySQL (no DB)');
+    console.log('✅ Connected to MySQL (no DB selected)');
+
+    // Create DB if it doesn't exist
     await tempConn.query(`CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\``);
     console.log(`✅ Database '${DB_NAME}' ensured`);
+
     await tempConn.end();
 
-    // Main connection with DB
+    // Connect with DB selected
     const db = await mysql.createConnection({
       host: DB_HOST,
       user: DB_USER,
@@ -31,49 +35,51 @@ async function connectToDatabase() {
       database: DB_NAME,
     });
 
-    console.log('✅ Connected to MySQL with selected DB');
+    console.log('✅ Connected to MySQL with database selected');
 
-    // Ensure users table
+    // Create users table if not exists
     await db.query(`
       CREATE TABLE IF NOT EXISTS users (
         id INT AUTO_INCREMENT PRIMARY KEY,
         username VARCHAR(255) UNIQUE,
         password VARCHAR(255),
-        role ENUM('admin', 'controller', 'police','sp') DEFAULT 'police'
+        role ENUM('admin', 'controller', 'CCPS', 'sp') DEFAULT 'CCPS'
       );
     `);
 
-    // Ensure requests table
-    await db.query(`
-      CREATE TABLE IF NOT EXISTS requests (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        reference_number VARCHAR(100) UNIQUE,
-        assigned_to INT,
-        name VARCHAR(255),
-        mobile VARCHAR(50),
-        email VARCHAR(255),
-        address TEXT,
-        account_type VARCHAR(50),
-        account_ownership VARCHAR(50),
-        account_number VARCHAR(100),
-        ncrp_ack_number VARCHAR(100),
-        account_opening_year VARCHAR(10),
-        business_description TEXT,
-        transaction_reason TEXT,
-        id_proof_type VARCHAR(50),
-        document_paths TEXT,
-        status VARCHAR(50) DEFAULT 'Pending',
-        status_reason TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (assigned_to) REFERENCES users(id)
-      );
-    `);
-    // Seed default users
+    // Create requests table with only required columns per your latest form and backend
+ await db.query(`
+  CREATE TABLE IF NOT EXISTS requests (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    reference_number VARCHAR(100) UNIQUE,
+    assigned_to INT NULL,
+    name VARCHAR(255) NOT NULL,
+    mobile VARCHAR(50) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    address TEXT,
+    account_type VARCHAR(50) NOT NULL,
+    account_number VARCHAR(100) NOT NULL,
+    ncrp_ack_number VARCHAR(100),
+    business_description TEXT,
+    transaction_reason TEXT,
+    id_proof_type VARCHAR(50) NOT NULL,
+    document_paths TEXT,
+    status VARCHAR(50) DEFAULT 'Pending',
+    status_reason TEXT,             -- 20 words, remarks for user
+    detailed_report TEXT,           -- 50 words, report for admin/controller
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (assigned_to) REFERENCES users(id)
+      ON DELETE SET NULL
+      ON UPDATE CASCADE
+  );
+`);
+
+
+    // Seed default users (only if not exist)
     const users = [
       ['admin', await bcrypt.hash('admin123', 10), 'admin'],
       ['controller1', await bcrypt.hash('controller123', 10), 'controller'],
-      ['police1', await bcrypt.hash('police123', 10), 'police'],
-      ['sp1', await bcrypt.hash('sp123', 10), 'sp'],
+      ['CCPS1', await bcrypt.hash('CCPS123', 10), 'CCPS'],
     ];
 
     await db.query(
@@ -90,9 +96,11 @@ async function connectToDatabase() {
   }
 }
 
-// Initialize and store instance
+// Initialize and store singleton instance
 async function init() {
-  dbInstance = await connectToDatabase();
+  if (!dbInstance) {
+    dbInstance = await connectToDatabase();
+  }
   return dbInstance;
 }
 

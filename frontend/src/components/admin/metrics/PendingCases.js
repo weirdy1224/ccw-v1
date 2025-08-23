@@ -5,7 +5,7 @@ const PendingCases = ({ requests }) => {
 
   return (
     <div className="metric-card">
-      <h4>Pending Assigned Police Cases</h4>
+      <h4>Pending Assigned CCPS Cases</h4>
       <p>{pendingAssigned}</p>
     </div>
   );

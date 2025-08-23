@@ -6,41 +6,33 @@ import Navbar from './components/Navbar';
 import PublicUserForm from './components/PublicUserForm';
 import TrackRequest from './components/TrackRequest';
 import AdminLogin from './components/AdminLogin';
-import PoliceLogin from './components/PoliceLogin';
+import CCPSLogin from './components/CCPSLogin';
 import ControllerLogin from './components/ControllerLogin';
 
 import AdminDashboard from './components/admin/AdminDashboard';
 import ControllerDashboard from './components/controller/ControllerDashboard';
-import PoliceDashboard from './components/police/PoliceDashboard';
+import CCPSDashboard from './components/CCPS/CCPSDashboard';
 
 import CreateController from './components/admin/CreateController';
-import CreatePolice from './components/admin/CreatePolice';
+import CreateCCPS from './components/admin/CreateCCPS';
 import SearchRequests from './components/admin/SearchRequests';
-import PoliceAssignments from './components/admin/PoliceAssignments';
+import CCPSAssignments from './components/admin/CCPSAssignments';
 import AdminRequests from './components/admin/AdminRequests';
 import AdminDocuments from './components/admin/AdminDocuments';
 import AdminOverallReports from './components/admin/AdminOverallReports';
 
 import ProtectedRoute from './components/ProtectedRoute';
 
-import ContCreatePolice from './components/controller/ContCreatePolice';
+import ContCreateCCPS from './components/controller/ContCreateCCPS';
 import ContSearchRequests from './components/controller/ContSearchRequests';
-import ContPoliceAssignments from './components/controller/ContPoliceAssignments';
+import ContCCPSAssignments from './components/controller/ContCCPSAssignments';
 import ControllerRequests from './components/controller/ControllerRequests';
 import ControllerDocuments from './components/controller/ControllerDocuments';
 import ContOverallReports from './components/controller/ContOverallReports';
 import './global.css';
-import PoliceRequests from './components/police/PoliceRequests';
-import PoliceDocuments from './components/police/PoliceDocuments';
+import CCPSRequests from './components/CCPS/CCPSRequests';
+import CCPSDocuments from './components/CCPS/CCPSDocuments';
 
-import SPCreateController from './components/sp/SPCreateController';
-import SPCreatePolice from './components/sp/SPCreatePolice';
-import SpDashboard from './components/sp/SpDashboard';
-import SPDocuments from './components/sp/SpDocuments';
-import SPPoliceAssignments from './components/sp/SPPoliceAssignments';
-import SPRequests from './components/sp/SpRequests';
-import SPSearchRequests from './components/sp/SPSearchRequests';
-import SPPoliceLogin from './components/SpLogin';
 
 const App = () => {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
@@ -61,8 +53,7 @@ const App = () => {
         <Route path="/track" element={<TrackRequest />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/controller/login" element={<ControllerLogin />} />
-        <Route path="/police/login" element={<PoliceLogin />} />
-        <Route path="/sp/login" element={<SPPoliceLogin />} />
+        <Route path="/CCPS/login" element={<CCPSLogin />} />
 
         <Route path="/admin/dashboard" element={
           <ProtectedRoute allowedRoles={['admin']}>
@@ -79,34 +70,19 @@ const App = () => {
             <ContOverallReports />
           </ProtectedRoute>
         } />
-        <Route path="/sp/dashboard" element={
-          <ProtectedRoute allowedRoles={['sp']}>
-            <SpDashboard />
-          </ProtectedRoute>
-        } />
         <Route path="/admin/create-controller" element={
           <ProtectedRoute allowedRoles={['admin']}>
             <CreateController />
           </ProtectedRoute>
         } />
-        <Route path="/sp/create-controller" element={
-          <ProtectedRoute allowedRoles={['sp']}>
-            <SPCreateController />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/create-police" element={
+        <Route path="/admin/create-CCPS" element={
           <ProtectedRoute allowedRoles={['admin']}>
-            <CreatePolice />
+            <CreateCCPS />
           </ProtectedRoute>
         } />
-        <Route path="/sp/create-police" element={
-          <ProtectedRoute allowedRoles={['sp']}>
-            <SPCreateController />
-          </ProtectedRoute>
-        } />
-        <Route path="/controller/create-police" element={
+        <Route path="/controller/create-CCPS" element={
           <ProtectedRoute allowedRoles={['controller']}>
-            <ContCreatePolice />
+            <ContCreateCCPS />
           </ProtectedRoute>
         } />
         <Route path="/controller/dashboard" element={
@@ -119,29 +95,19 @@ const App = () => {
             <SearchRequests />
           </ProtectedRoute>
         } />
-        <Route path="/sp/search" element={
-          <ProtectedRoute allowedRoles={['sp']}>
-            <SPSearchRequests />
-          </ProtectedRoute>
-        } />
         <Route path="/controller/search" element={
           <ProtectedRoute allowedRoles={['controller']}>
             <ContSearchRequests />
           </ProtectedRoute>
         } />
-        <Route path="/admin/police-assignments" element={
+        <Route path="/admin/CCPS-assignments" element={
           <ProtectedRoute allowedRoles={['admin']}>
-            <PoliceAssignments />
+            <CCPSAssignments />
           </ProtectedRoute>
         } />
-        <Route path="/sp/police-assignments" element={
-          <ProtectedRoute allowedRoles={['sp']}>
-            <SPPoliceAssignments />
-          </ProtectedRoute>
-        } />
-        <Route path="/controller/police-assignments" element={
+        <Route path="/controller/CCPS-assignments" element={
           <ProtectedRoute allowedRoles={['controller']}>
-            <ContPoliceAssignments />
+            <ContCCPSAssignments />
           </ProtectedRoute>
         } />
         <Route path="/admin/requests" element={
@@ -149,19 +115,14 @@ const App = () => {
             <AdminRequests />
           </ProtectedRoute>
         } />
-        <Route path="/sp/requests" element={
-          <ProtectedRoute allowedRoles={['sp']}>
-            <SPRequests />
-          </ProtectedRoute>
-        } />
         <Route path="/controller/requests" element={
           <ProtectedRoute allowedRoles={['controller']}>
             <ControllerRequests />
           </ProtectedRoute>
         } />
-        <Route path="/police/requests" element={
-          <ProtectedRoute allowedRoles={['police']}>
-            <PoliceRequests />
+        <Route path="/CCPS/requests" element={
+          <ProtectedRoute allowedRoles={['CCPS']}>
+            <CCPSRequests />
           </ProtectedRoute>
         } />
         <Route path="/admin/documents" element={
@@ -169,24 +130,19 @@ const App = () => {
             <AdminDocuments />
           </ProtectedRoute>
         } />
-        <Route path="/sp/documents" element={
-          <ProtectedRoute allowedRoles={['sp']}>
-            <SPDocuments />
-          </ProtectedRoute>
-        } />
         <Route path="/controller/documents" element={
           <ProtectedRoute allowedRoles={['controller']}>
             <ControllerDocuments />
           </ProtectedRoute>
         } />
-        <Route path="/police/documents" element={
-          <ProtectedRoute allowedRoles={['police']}>
-            <PoliceDocuments />
+        <Route path="/CCPS/documents" element={
+          <ProtectedRoute allowedRoles={['CCPS']}>
+            <CCPSDocuments />
           </ProtectedRoute>
         } />
-        <Route path="/police/dashboard" element={
-          <ProtectedRoute allowedRoles={['police']}>
-            <PoliceDashboard />
+        <Route path="/CCPS/dashboard" element={
+          <ProtectedRoute allowedRoles={['CCPS']}>
+            <CCPSDashboard />
           </ProtectedRoute>
         } />
         <Route path="*" element={<Navigate to="/" />} />

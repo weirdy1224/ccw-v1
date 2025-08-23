@@ -23,7 +23,7 @@ const sendDefreezeAcknowledgment = async ({ toEmail, userName, requestId, accoun
       Account Number: <strong>XXXX${accountLast4}</strong><br/>
       NCRP Reference: <strong>${ncrpRef}</strong><br/>
       Submitted By: <strong>${submittedBy}</strong></p>
-      <p>Your request has been received and is currently under review by the Cyber Crime Department. The control team is in communication with the concerned police station for necessary actions. You will receive a final notification once the process is completed.</p>
+      <p>Your request has been received and is currently under review by the Cyber Crime Department. The control team is in communication with the concerned CCPS station for necessary actions. You will receive a final notification once the process is completed.</p>
       <p><strong>Expected Processing Time:</strong> 3–7 working days</p>
       <p>Kindly note that the verification process may involve the Investigating Officer reviewing the details of the case. We request your full cooperation during this process. If any additional information is required, we will reach out via email or phone.</p>
       <p>Thank you for your cooperation.</p>

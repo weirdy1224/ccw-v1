@@ -32,25 +32,25 @@ router.get('/requests', async (req, res) => {
   // GET /api/admin/stations
   router.get('/stations', async (req, res) => {
     try {
-      const [results] = await db.query('SELECT id, username FROM users WHERE role = "police"');
+      const [results] = await db.query('SELECT id, username FROM users WHERE role = "CCPS"');
       res.json(results);
     } catch (err) {
       res.status(500).json({ message: 'Failed to fetch stations' });
     }
   });
-  // GET /api/admin/police-assignments
-  router.get('/police-assignments', async (req, res) => {
+  // GET /api/admin/CCPS-assignments
+  router.get('/CCPS-assignments', async (req, res) => {
     try {
       const [results] = await db.query(`
-      SELECT u.username AS police_username, r.reference_number, r.status
+      SELECT u.username AS CCPS_username, r.reference_number, r.status
       FROM users u
       LEFT JOIN requests r ON u.id = r.assigned_to
-      WHERE u.role = 'police'
+      WHERE u.role = 'CCPS'
       ORDER BY u.username
     `);
       res.json(results);
     } catch (err) {
-      res.status(500).json({ message: 'Failed to fetch police assignments', error: err.message });
+      res.status(500).json({ message: 'Failed to fetch CCPS assignments', error: err.message });
     }
   });
 

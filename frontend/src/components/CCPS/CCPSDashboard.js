@@ -4,7 +4,7 @@ import axios from 'axios';
 import AssignedRequests from './metrics/AssignedRequests';
 import PendingCases from './metrics/PendingCases';
 
-const AdminDashboard = () => {
+const CCPSDashboard = () => {
   const [requests, setRequests] = useState([]);
   const [error, setError] = useState('');
 
@@ -12,7 +12,7 @@ const AdminDashboard = () => {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get('/api/police/requests', {
+      const res = await axios.get('/api/CCPS/requests', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setRequests(res.data);
@@ -29,7 +29,7 @@ const AdminDashboard = () => {
   return (
     <div className="page-wrapper">
       <div className='flex'>
-      <h2 className="title">Police Dashboard</h2>
+      <h2 className="title">CCPS Dashboard</h2>
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
       {/* Metrics Grid */}
@@ -42,4 +42,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default CCPSDashboard;

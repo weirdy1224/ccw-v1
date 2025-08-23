@@ -2,25 +2,25 @@ import { Formik, Form, Field } from 'formik';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const SPPoliceLogin = () => {
+const CCPSLogin = () => {
   const navigate = useNavigate();
 
   return (
     <section className="page-wrapper">
       <div className="card">
-        <h2 className="title">SP Login</h2>
+        <h2 className="title">CCPS Login</h2>
         <Formik
           initialValues={{ username: '', password: '' }}
           onSubmit={async (values, { setSubmitting }) => {
             try {
               const res = await axios.post('/api/auth/login', values);
 
-              if (res.data.role === 'sp') {
+              if (res.data.role === 'CCPS') {
                 localStorage.setItem('token', res.data.token);
                 localStorage.setItem('role', res.data.role);
-                navigate('/sp/dashboard');
+                navigate('/CCPS/dashboard');
               } else {
-                alert('Access denied: You are not authorized as a police user');
+                alert('Access denied: You are not authorized as a CCPS user');
               }
             } catch (err) {
               alert(err.response?.data?.message || 'Login failed');
@@ -43,4 +43,4 @@ const SPPoliceLogin = () => {
   );
 };
 
-export default SPPoliceLogin;
+export default CCPSLogin;

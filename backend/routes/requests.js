@@ -1,8 +1,10 @@
+// routes/requests.js
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const sendMail = require('../mailer'); // Email module
+const sendMail = require('../mailer'); // Make sure this exports a mail sending function
 const { getConnection } = require('../config/db');
+
 module.exports = (db) => {
   const router = express.Router();
 
@@ -10,47 +12,75 @@ module.exports = (db) => {
   const storage = multer.diskStorage({
     destination: './uploads/',
     filename: (req, file, cb) => {
+      // To avoid collisions, prefix with timestamp + original extension
       cb(null, Date.now() + path.extname(file.originalname));
     }
   });
-  const upload = multer({ storage });
 
-  // Generate a unique reference number
+  // Accept separate named file fields, max 1 file each
+  const upload = multer({ storage }).fields([
+    { name: 'id_proof', maxCount: 1 },
+    { name: 'account_opening_form', maxCount: 1 },
+    { name: 'business_proof', maxCount: 1 },
+  ]);
+
+  // Generate a unique reference number for each request
   const generateReferenceNumber = () =>
     'REF' + Math.random().toString(36).substr(2, 9).toUpperCase();
 
-  // ✅ Submit new request
-  router.post('/submit', upload.array('documents', 5), async (req, res) => {
+  // ✅ Submit new request (expects multipart/form-data with fields + files)
+  router.post('/submit', upload, async (req, res) => {
     try {
       const {
         name, mobile, email, address,
-        account_type, account_ownership, account_number,
-        ncrp_ack_number, account_opening_year,
+        account_type, account_number,
+        ncrp_ack_number,
         business_description, transaction_reason, id_proof_type
       } = req.body;
 
-      const reference_number = generateReferenceNumber();
-      const document_paths = req.files ? req.files.map(file => file.path).join(',') : '';
+      // Validate required fields server-side (basic)
+      if (!name || !mobile || !email || !account_type || !account_number || !id_proof_type) {
+        return res.status(400).json({ message: 'Missing required fields' });
+      }
 
+      // Generate unique reference number (you might want a better approach in prod)
+      const reference_number = generateReferenceNumber();
+
+      // Extract file paths safely
+      const idProofPath = req.files['id_proof'] ? req.files['id_proof'][0].path : '';
+      const accountOpeningFormPath = req.files['account_opening_form'] ? req.files['account_opening_form'][0].path : '';
+      const businessProofPath = req.files['business_proof'] ? req.files['business_proof'][0].path : '';
+
+      // Store document paths as JSON string
+      const documentPaths = JSON.stringify({
+        id_proof: idProofPath,
+        account_opening_form: accountOpeningFormPath,
+        business_proof: businessProofPath
+      });
+
+      // Prepare SQL Insert statement
       const query = `
         INSERT INTO requests (
           reference_number, name, mobile, email, address,
-          account_type, account_ownership, account_number, ncrp_ack_number,
-          account_opening_year, business_description, transaction_reason,
+          account_type, account_number, ncrp_ack_number,
+          business_description, transaction_reason,
           id_proof_type, document_paths
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
+
       const values = [
-        reference_number, name, mobile, email, address,
-        account_type, account_ownership, account_number, ncrp_ack_number,
-        account_opening_year, business_description, transaction_reason,
-        id_proof_type, document_paths
+        reference_number, name, mobile, email, address || null,
+        account_type, account_number, ncrp_ack_number || null,
+        business_description || null, transaction_reason || null,
+        id_proof_type, documentPaths
       ];
 
+      // Execute the insert query
       await db.query(query, values);
+
       console.log(`✅ New request submitted: ${reference_number}`);
 
-      // ✉️ Send email to user on submission
+      // Send confirmation email to user
       await sendMail(
         email,
         'Request Submitted Successfully',
@@ -61,7 +91,7 @@ module.exports = (db) => {
 
       res.status(200).json({ reference_number, message: 'Request submitted successfully' });
     } catch (err) {
-      console.error('❌ Submission error:', err.message);
+      console.error('❌ Submission error:', err);
       res.status(500).json({ message: 'Error submitting request' });
     }
   });
@@ -69,7 +99,6 @@ module.exports = (db) => {
   // ✅ Track status by reference number
   router.get('/track/:refId', async (req, res) => {
     const { refId } = req.params;
-
     try {
       const [results] = await db.query('SELECT * FROM requests WHERE reference_number = ?', [refId]);
 
@@ -79,7 +108,7 @@ module.exports = (db) => {
 
       res.status(200).json(results[0]);
     } catch (err) {
-      console.error('❌ Tracking error:', err.message);
+      console.error('❌ Tracking error:', err);
       res.status(500).json({ error: 'Failed to fetch request status' });
     }
   });
@@ -100,12 +129,12 @@ module.exports = (db) => {
 
       await db.query(
         'UPDATE requests SET status = ?, status_reason = ? WHERE reference_number = ?',
-        ['Completed', status_reason || 'Completed by police station', refId]
+        ['Completed', status_reason || 'Completed by CCPS station', refId]
       );
 
       console.log(`✅ Request ${refId} marked as completed.`);
 
-      // ✉️ Send completion email to user
+      // Send completion email
       await sendMail(
         request.email,
         'Request Completed',
@@ -116,21 +145,24 @@ module.exports = (db) => {
 
       res.status(200).json({ message: 'Request marked as completed and user notified.' });
     } catch (err) {
-      console.error('❌ Completion error:', err.message);
+      console.error('❌ Completion error:', err);
       res.status(500).json({ error: 'Failed to complete request' });
     }
   });
-router.get('/pending-assigned-count', async (req, res) => {
-  try {
-    const db = getConnection();
-    const [rows] = await db.query(
-      "SELECT COUNT(*) as count FROM requests WHERE status = 'Pending' AND assigned_to IS NOT NULL"
-    );
-    res.json({ pendingAssigned: rows[0].count });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Database query failed' });
-  }
-});
+
+  // ✅ Get count of pending assigned requests
+  router.get('/pending-assigned-count', async (req, res) => {
+    try {
+      const db = getConnection();
+      const [rows] = await db.query(
+        "SELECT COUNT(*) as count FROM requests WHERE status = 'Pending' AND assigned_to IS NOT NULL"
+      );
+      res.json({ pendingAssigned: rows[0].count });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Database query failed' });
+    }
+  });
+
   return router;
 };

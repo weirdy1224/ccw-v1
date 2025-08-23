@@ -2,7 +2,7 @@ import { Formik, Form, Field } from 'formik';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const SPPoliceLogin = () => {
+const AdminLogin = () => {
   const navigate = useNavigate();
 
   return (
@@ -20,7 +20,7 @@ const SPPoliceLogin = () => {
                 localStorage.setItem('role', res.data.role);
                 navigate('/admin/dashboard');
               } else {
-                alert('Access denied: You are not authorized as a police user');
+                alert('Access denied: You are not authorized as a CCPS user');
               }
             } catch (err) {
               alert(err.response?.data?.message || 'Login failed');
@@ -43,4 +43,4 @@ const SPPoliceLogin = () => {
   );
 };
 
-export default SPPoliceLogin;
+export default AdminLogin;

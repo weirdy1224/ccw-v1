@@ -29,7 +29,7 @@ const Login = () => {
               // Redirect based on role
               if (res.data.role === 'admin') navigate('/admin/dashboard');
               else if (res.data.role === 'controller') navigate('/controller/dashboard');
-              else if (res.data.role === 'police') navigate('/police/dashboard');
+              else if (res.data.role === 'CCPS') navigate('/CCPS/dashboard');
               else if (res.data.role === 'sp') navigate('/sp/dashboard');
               else navigate('/');
             } catch (error) {

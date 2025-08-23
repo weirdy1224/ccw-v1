@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const SpDocuments = () => {
+const CCPSDocuments = () => {
   const [requests, setRequests] = useState([]);
   const [selectedId, setSelectedId] = useState('');
   const [documents, setDocuments] = useState([]);
@@ -16,7 +16,7 @@ const SpDocuments = () => {
   // Fetch requests
   const fetchRequests = async () => {
     try {
-      const res = await axios.get('/api/sp/requests', config);
+      const res = await axios.get('/api/CCPS/requests', config);
       setRequests(res.data);
     } catch (err) {
       console.error('Failed to load requests:', err.message);
@@ -26,7 +26,7 @@ const SpDocuments = () => {
   // Fetch documents for selected request
   const handleFetchDocuments = async () => {
     try {
-      const res = await axios.get(`/api/sp/documents/${selectedId}`, config);
+      const res = await axios.get(`/api/CCPS/documents/${selectedId}`, config);
       setDocuments(res.data.urls || []);
     } catch (err) {
       console.error('Error fetching documents:', err);
@@ -72,4 +72,4 @@ const SpDocuments = () => {
   );
 };
 
-export default SpDocuments;
+export default CCPSDocuments;

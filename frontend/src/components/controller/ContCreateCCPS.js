@@ -1,8 +1,8 @@
-// pages/CreatePolice.js
+// pages/CreateCCPS.js
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const CreatePolice = () => {
+const ContCreateCCPS = () => {
   const [form, setForm] = useState({ username: '', password: '' });
   const [message, setMessage] = useState('');
   const token = localStorage.getItem('token');
@@ -11,20 +11,20 @@ const CreatePolice = () => {
     e.preventDefault();
     setMessage('');
     try {
-      await axios.post('/api/controller/create-police', form, {
+      await axios.post('/api/controller/create-CCPS', form, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setMessage('✅ Police user created successfully.');
+      setMessage('✅ CCPS user created successfully.');
       setForm({ username: '', password: '' });
     } catch (err) {
-      setMessage('❌ ' + (err.response?.data?.message || 'Error creating police user'));
+      setMessage('❌ ' + (err.response?.data?.message || 'Error creating CCPS user'));
     }
   };
 
   return (
     <div className="page-wrapper">
       <div className="card">
-        <h2 className="title">Create Police User</h2>
+        <h2 className="title">Create CCPS User</h2>
         <form onSubmit={handleSubmit}>
           <div className="input-group">
             <label>Username</label>
@@ -52,4 +52,4 @@ const CreatePolice = () => {
   );
 };
 
-export default CreatePolice;
+export default ContCreateCCPS;

@@ -6,11 +6,11 @@ function MultiSelect({ options, selected, onChange, placeholder }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const filtered = useMemo(() =>
-      options.filter(
-        o =>
-          o.username.toLowerCase().includes(search.toLowerCase()) ||
-          (o.station_name && o.station_name.toLowerCase().includes(search.toLowerCase()))
-      ),
+    options.filter(
+      o =>
+        o.username.toLowerCase().includes(search.toLowerCase()) ||
+        (o.station_name && o.station_name.toLowerCase().includes(search.toLowerCase()))
+    ),
     [options, search]
   );
   const toggle = () => setOpen((a) => !a);
@@ -28,7 +28,7 @@ function MultiSelect({ options, selected, onChange, placeholder }) {
       {open && (
         <div className="pa-multiselect-dropdown">
           <input
-            placeholder="Search police..."
+            placeholder="Search CCPS..."
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="pa-multiselect-search"
@@ -44,7 +44,7 @@ function MultiSelect({ options, selected, onChange, placeholder }) {
                 />
                 <span>
                   {option.username}
-                  {option.station_name ? ` (${option.station_name})`:''}
+                  {option.station_name ? ` (${option.station_name})` : ''}
                 </span>
               </label>
             ))}
@@ -60,9 +60,9 @@ function MultiSelect({ options, selected, onChange, placeholder }) {
   );
 }
 
-const PoliceAssignments = () => {
+const CCPSAssignments = () => {
   const [requests, setRequests] = useState([]);
-  const [policeUsers, setPoliceUsers] = useState([]);
+  const [CCPSUsers, setCCPSUsers] = useState([]);
   const [selectedOfficers, setSelectedOfficers] = useState([]);
   const [error, setError] = useState('');
   const [sort, setSort] = useState({ by: null, asc: true });
@@ -76,26 +76,30 @@ const PoliceAssignments = () => {
         axios.get('/api/admin/requests', { headers: { Authorization: `Bearer ${token}` } }),
         axios.get('/api/admin/stations', { headers: { Authorization: `Bearer ${token}` } }),
       ]);
-      setRequests(reqRes.data); setPoliceUsers(stationsRes.data);
+      setRequests(reqRes.data); setCCPSUsers(stationsRes.data);
     } catch (err) {
       setError('Failed to load data.');
     }
   };
 
   const officerStats = useMemo(() =>
-    policeUsers.map(user => {
+    CCPSUsers.map(user => {
       const assigned = requests.filter(r => r.assigned_to === user.id);
       const pending = assigned.filter(r => r.status === 'Pending');
       const completed = assigned.filter(r => r.status === 'Completed');
+      const rejected = assigned.filter(r => r.status === 'Rejected');
       return {
         ...user,
         assigned,
         totalAssigned: assigned.length,
-        totalAssignedPending: pending.length,
-        totalCompleted: completed.length
+        totalCompleted: completed.length,
+        totalPending: pending.length,
+        totalRejected: rejected.length
       };
-    }), [requests, policeUsers]
+    }),
+    [requests, CCPSUsers]
   );
+
   const filteredOfficers = useMemo(
     () => (selectedOfficers.length
       ? officerStats.filter(u => selectedOfficers.includes(u.id))
@@ -115,69 +119,85 @@ const PoliceAssignments = () => {
   return (
     <div className="pa-wrapper">
       <div className="pa-header-row">
-        <h2>Police Assignments</h2>
+        <h2>CCPS Assignments</h2>
         <MultiSelect
-          options={policeUsers}
+          options={CCPSUsers}
           selected={selectedOfficers}
           onChange={setSelectedOfficers}
-          placeholder="Filter police users"
+          placeholder="Filter CCPS users"
         />
       </div>
       {error && <p className="pa-error">{error}</p>}
 
       <div className="pa-table-scroll">
         <table className="pa-table">
-  <thead>
-    <tr>
-      <th>Police User</th>
-      <th
-        onClick={() =>
-          setSort(prev => ({
-            by: "totalAssigned",
-            asc: prev.by === "totalAssigned" ? !prev.asc : true
-          }))
-        }
-        className="pa-sortable"
-      >
-        Total Assigned {sort.by === "totalAssigned" ? (sort.asc ? "▲" : "▼") : ""}
-      </th>
-      <th
-        onClick={() =>
-          setSort(prev => ({
-            by: "totalAssignedPending",
-            asc: prev.by === "totalAssignedPending" ? !prev.asc : true
-          }))
-        }
-        className="pa-sortable"
-      >
-        Pending {sort.by === "totalAssignedPending" ? (sort.asc ? "▲" : "▼") : ""}
-      </th>
-      <th
-        onClick={() =>
-          setSort(prev => ({
-            by: "totalCompleted",
-            asc: prev.by === "totalCompleted" ? !prev.asc : true
-          }))
-        }
-        className="pa-sortable"
-      >
-        Completed {sort.by === "totalCompleted" ? (sort.asc ? "▲" : "▼") : ""}
-      </th>
-    </tr>
-  </thead>
-  <tbody>
-    {sortedOfficers.length ? sortedOfficers.map(user => (
-      <tr key={user.id} className="pa-table-row" onClick={() => openModal(user)}>
-        <td>{user.username}</td>
-        <td>{user.totalAssigned}</td>
-        <td>{user.totalAssignedPending}</td>
-        <td>{user.totalCompleted}</td>
-      </tr>
-    )) : (
-      <tr><td colSpan={4} className="pa-table-empty">No police users found.</td></tr>
-    )}
-  </tbody>
-</table>
+          <thead>
+            <tr>
+              <th>CCPS User</th>
+              <th
+                onClick={() =>
+                  setSort(prev => ({
+                    by: "totalAssigned",
+                    asc: prev.by === "totalAssigned" ? !prev.asc : true
+                  }))
+                }
+                className="pa-sortable"
+              >
+                Assigned {sort.by === "totalAssigned" ? (sort.asc ? "▲" : "▼") : ""}
+              </th>
+              <th
+                onClick={() =>
+                  setSort(prev => ({
+                    by: "totalCompleted",
+                    asc: prev.by === "totalCompleted" ? !prev.asc : true
+                  }))
+                }
+                className="pa-sortable"
+              >
+                Completed {sort.by === "totalCompleted" ? (sort.asc ? "▲" : "▼") : ""}
+              </th>
+              <th
+                onClick={() =>
+                  setSort(prev => ({
+                    by: "totalPending",
+                    asc: prev.by === "totalPending" ? !prev.asc : true
+                  }))
+                }
+                className="pa-sortable"
+              >
+                Pending {sort.by === "totalPending" ? (sort.asc ? "▲" : "▼") : ""}
+              </th>
+              <th
+                onClick={() =>
+                  setSort(prev => ({
+                    by: "totalRejected",
+                    asc: prev.by === "totalRejected" ? !prev.asc : true
+                  }))
+                }
+                className="pa-sortable"
+              >
+                Rejected {sort.by === "totalRejected" ? (sort.asc ? "▲" : "▼") : ""}
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {sortedOfficers.length ? sortedOfficers.map(user => (
+              <tr key={user.id} className="pa-table-row" onClick={() => openModal(user)}>
+                <td>{user.username}</td>
+                <td>{user.totalAssigned}</td>
+                <td>{user.totalCompleted}</td>
+                <td>{user.totalPending}</td>
+                <td>{user.totalRejected}</td>
+              </tr>
+            )) : (
+              <tr>
+                <td colSpan={5} className="pa-table-empty">No CCPS users found.</td>
+              </tr>
+            )}
+          </tbody>
+
+        </table>
 
       </div>
 
@@ -190,8 +210,10 @@ const PoliceAssignments = () => {
             <div className="pa-modal-summary">
               <div>Assigned: <strong>{modalUser.totalAssigned}</strong></div>
               <div>Completed: <strong>{modalUser.totalCompleted}</strong></div>
-              <div>Pending: <strong>{modalUser.totalAssignedPending}</strong></div>
+              <div>Pending: <strong>{modalUser.totalPending}</strong></div>
+              <div>Rejected: <strong>{modalUser.totalRejected}</strong></div>
             </div>
+
             <ul className="pa-modal-case-list">
               {modalUser.assigned.map(r => (
                 <li key={r.id}>
@@ -213,4 +235,4 @@ const PoliceAssignments = () => {
   );
 };
 
-export default PoliceAssignments;
+export default CCPSAssignments;

@@ -20,14 +20,14 @@ db.init().then(() => {
   const requestRoutes = require('./routes/requests')(connection);
   const adminRoutes = require('./routes/admin')(connection);
   const controllerRoutes = require('./routes/controller')(connection);
-  const policeRoutes = require('./routes/police')(connection);
+  const CCPSRoutes = require('./routes/CCPS')(connection);
   const spRoutes = require('./routes/sp.js')(connection);
 
   app.use('/api/auth', authRoutes);
   app.use('/api/requests', requestRoutes);
   app.use('/api/admin', adminRoutes);
   app.use('/api/controller', controllerRoutes);
-  app.use('/api/police', policeRoutes);
+  app.use('/api/CCPS', CCPSRoutes);
   app.use('/api/sp',spRoutes);
 
   app.listen(PORT, () => {

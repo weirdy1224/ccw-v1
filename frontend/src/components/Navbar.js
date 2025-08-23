@@ -1,113 +1,83 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+
+const reportLinks = [
+  { label: "User Requests", to: "/admin/requests" },
+  { label: "CCPS Assignments", to: "/admin/CCPS-assignments" },
+  { label: "Overall Reports", to: "/admin/overall-reports" },
+];
+
+const controllerReportLinks = [
+  { label: "User Requests", to: "/controller/requests" },
+  { label: "CCPS Assignments", to: "/controller/CCPS-assignments" },
+  { label: "Overall Reports", to: "/controller/overall-reports" },
+];
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const role = localStorage.getItem('role');
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
-  const [showReportsDropdown, setShowReportsDropdown] = useState(false);
+  // Instead of dropdown, show expandable for reports section
+  const [reportsOpen, setReportsOpen] = useState(false);
 
   useEffect(() => {
     document.body.className = theme === 'dark' ? 'dark' : 'light';
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
-  };
-
+  const toggleTheme = () => setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
   const handleLogout = () => {
     localStorage.clear();
     navigate('/');
   };
 
-  // Dropdown toggle
-  const handleReportsClick = (e) => {
-    e.preventDefault();
-    setShowReportsDropdown(prev => !prev);
-  };
+  // For auto-close "reports" on nav/route change
+  useEffect(() => setReportsOpen(false), [location.pathname]);
 
-  // Optional: Close dropdown when clicking elsewhere
-  useEffect(() => {
-    const closeDropdown = (e) => {
-      if (!e.target.closest('.reports-dropdown')) {
-        setShowReportsDropdown(false);
-      }
-    };
-    document.addEventListener('mousedown', closeDropdown);
-    return () => {
-      document.removeEventListener('mousedown', closeDropdown);
-    };
-  }, []);
+  // Helper: check current path for active link highlighting
+  const isActive = (to) => location.pathname === to;
 
   return (
     <nav className="navbar">
       <Link to="/" className="logo">
-        TamilNadu Cyber Crime Wing
+        TamilNadu Cyber<br />Crime Wing
       </Link>
       <div className="nav-links">
-
         {!role && (
           <>
             <Link to="/" className="nav-link">Upload Request</Link>
             <Link to="/track" className="nav-link">Track Request</Link>
             <Link to="/admin/login" className="nav-link">Admin</Link>
             <Link to="/controller/login" className="nav-link">Controller</Link>
-            <Link to="/police/login" className="nav-link">Police</Link>
-            {/* <Link to="/sp/login" className='nav-link'>SP Login</Link> */}
+            <Link to="/CCPS/login" className="nav-link">CCPS</Link>
           </>
         )}
-
         {role === 'admin' && (
           <>
-            <Link to="/admin/dashboard" className="nav-link">Dashboard</Link>
-            <Link to="/admin/search" className="nav-link">Search Request</Link>
-            <Link to="/admin/create-controller" className="nav-link">Create Controller</Link>
-            <Link to="/admin/create-police" className="nav-link">Create Police</Link>
+            <Link to="/admin/dashboard" className="nav-link" tabIndex={0}>Dashboard</Link>
+            <Link to="/admin/search" className="nav-link" tabIndex={0}>Search Request</Link>
+            <Link to="/admin/create-controller" className="nav-link" tabIndex={0}>Create Controller</Link>
+            <Link to="/admin/create-CCPS" className="nav-link" tabIndex={0}>Create CCPS</Link>
 
-            {/* Reports Dropdown */}
-            <div className="nav-link reports-dropdown" style={{ position: 'relative', display: 'inline-block' }}>
+            {/* Reports section with expandable list, not dropdown */}
+            <div className="reports-section-expandable">
               <button
-                onClick={handleReportsClick}
-                className="nav-link"
-                style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}
-              >
-                Reports ▼
-              </button>
-              {showReportsDropdown && (
-                <div className="dropdown-menu" style={{
-                  position: 'absolute',
-                  top: '100%',
-                  left: 0,
-                  background: 'white',
-                  zIndex: 10,
-                  minWidth: '180px',
-                  boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
-                }}>
-                  <Link to="/admin/requests" className="dropdown-item nav-link" onClick={() => setShowReportsDropdown(false)}>User Requests</Link>
-                  <Link to="/admin/police-assignments" className="dropdown-item nav-link" onClick={() => setShowReportsDropdown(false)}>Police Assignments</Link>
-                  <Link to="/admin/overall-reports" className="dropdown-item nav-link" onClick={() => setShowReportsDropdown(false)}>Overall Reports</Link>
-                </div>
-              )}
+                className={`reports-toggle${reportsOpen ? " open" : ""}`}
+                aria-expanded={reportsOpen}
+                onClick={() => setReportsOpen((o) => !o)}
+                type="button"
+              >Reports</button>
+              <div className={reportsOpen ? "reports-links-expanded" : "reports-links-collapsed"}>
+                {reportLinks.map(link => (
+                  <Link
+                    className={`nav-link${isActive(link.to) ? " active" : ""}`}
+                    key={link.to}
+                    to={link.to}
+                  >{link.label}</Link>
+                ))}
+              </div>
             </div>
-            {/* End Reports Dropdown */}
-
-            {/* Remove direct User Requests/Police Assignments links here */}
-            {/* <Link to="/admin/requests" className="nav-link">User Requests</Link> */}
-            {/* <Link to="/admin/police-assignments" className="nav-link">Police Assignments</Link> */}
-            {/* <Link to="/admin/documents" className="nav-link">View Documents</Link> */}
-          </>
-        )}
-
-        {role === 'sp' && (
-          <>
-            <Link to="/SP/dashboard" className="nav-link">Dashboard</Link>
-            <Link to="/SP/search" className="nav-link">Search Request</Link>
-            <Link to="/SP/create-controller" className="nav-link">Create Controller</Link>
-            <Link to="/SP/create-police" className="nav-link">Create Police</Link>
-            <Link to="/SP/police-assignments" className="nav-link">Police Assignments</Link>
-            <Link to="/SP/requests" className="nav-link">User Requests</Link>
-            {/* <Link to="/SP/documents" className="nav-link">View Documents</Link> */}
           </>
         )}
 
@@ -115,60 +85,51 @@ const Navbar = () => {
           <>
             <Link to="/controller/dashboard" className="nav-link">Dashboard</Link>
             <Link to="/controller/search" className="nav-link">Search Request</Link>
-            <Link to="/controller/create-police" className="nav-link">Create Police</Link>
-
-            {/* Reports Dropdown */}
-            <div className="nav-link reports-dropdown" style={{ position: 'relative', display: 'inline-block' }}>
+            <Link to="/controller/create-CCPS" className="nav-link">Create CCPS</Link>
+            {/* Reports section: controller version */}
+            <div className="reports-section-expandable">
               <button
-                onClick={handleReportsClick}
-                className="nav-link"
-                style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}
-              >
-                Reports ▼
-              </button>
-              {showReportsDropdown && (
-                <div className="dropdown-menu" style={{
-                  position: 'absolute',
-                  top: '100%',
-                  left: 0,
-                  background: 'white',
-                  zIndex: 10,
-                  minWidth: '180px',
-                  boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
-                }}>
-                  <Link to="/controller/requests" className="dropdown-item nav-link" onClick={() => setShowReportsDropdown(false)}>User Requests</Link>
-                  <Link to="/controller/police-assignments" className="dropdown-item nav-link" onClick={() => setShowReportsDropdown(false)}>Police Assignments</Link>
-                  <Link to="/controller/overall-reports" className="dropdown-item nav-link" onClick={() => setShowReportsDropdown(false)}>Overall Reports</Link>
-                </div>
-              )}
+                className={`reports-toggle${reportsOpen ? " open" : ""}`}
+                aria-expanded={reportsOpen}
+                onClick={() => setReportsOpen((o) => !o)}
+                type="button"
+              >Reports</button>
+              <div className={reportsOpen ? "reports-links-expanded" : "reports-links-collapsed"}>
+                {controllerReportLinks.map(link => (
+                  <Link
+                    className={`nav-link${isActive(link.to) ? " active" : ""}`}
+                    key={link.to}
+                    to={link.to}
+                  >{link.label}</Link>
+                ))}
+              </div>
             </div>
-            {/* End Reports Dropdown */}
-
-            {/* Remove direct User Requests/Police Assignments links here */}
-            {/* <Link to="/controller/police-assignments" className="nav-link">Police Assignments</Link> */}
-            {/* <Link to="/controller/requests" className="nav-link">View Requests</Link> */}
-            {/* <Link to="/controller/documents" className="nav-link">View Documents</Link> */}
           </>
         )}
 
-        {role === 'police' && (
+        {role === 'CCPS' && (
           <>
-            <Link to="/police/dashboard" className="nav-link">Dashboard</Link>
-            <Link to="/police/requests" className="nav-link">View Requests</Link>
-            <Link to="/police/documents" className="nav-link">View Documents</Link>
+            <Link to="/CCPS/dashboard" className="nav-link">Dashboard</Link>
+            <Link to="/CCPS/requests" className="nav-link">View Requests</Link>
+            <Link to="/CCPS/documents" className="nav-link">View Documents</Link>
           </>
         )}
 
-        <button onClick={toggleTheme} className="nav-link" style={{ background: 'transparent', border: 'none' }}>
+        <button onClick={toggleTheme} className="theme-btn" type="button">
           {theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
         </button>
+      </div>
 
-        {role && (
-          <button onClick={handleLogout} className="nav-link logout">
+      {role && (
+        <div className="logout-bar">
+          <div className="logged-in-label">
+            Logged in as: <b>{role.charAt(0).toUpperCase() + role.slice(1)}</b>
+          </div>
+          <button className="logout-btn" onClick={handleLogout} type="button">
             Logout
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </nav>
   );
 };
