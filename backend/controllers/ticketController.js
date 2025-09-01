@@ -1,49 +1,80 @@
-const nodemailer = require('nodemailer');
-require('dotenv').config();
+const db = require('../config/db');
+const NodeClam = require('clamscan');
+const path = require('path');
+const { sendTicketReceivedEmail } = require('../mailer');
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587, // TLS port
-  secure: false, // use STARTTLS
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
+let clamscan;
+
+// Initialize ClamAV once (not on every request)
+(async () => {
+  try {
+    clamscan = await new NodeClam().init({
+      debugMode: true,
+      preference: 'clamscan',
+      clamscan: {
+        path: "C:\\Program Files\\ClamAV\\clamscan.exe",
+        scanArchives: true,
+        active: true
+      },
+      clamdscan: { active: false },
+      // 🔑 Important on Windows: let Node spawn via shell
+      scanLog: null,
+      removeInfected: false,
+      quarantineInfected: false,
+      exec: { 
+        shell: true // <-- Fix spawn UNKNOWN on Windows
+      }
+    });
+
+    console.log("✅ ClamAV initialized");
+  } catch (err) {
+    console.error("❌ Failed to initialize ClamAV:", err);
   }
-});
+})();
 
-const sendTicketReceivedEmail = async (toEmail, ticketId) => {
-  const mailOptions = {
-    from: `"Unfree Portal" <${process.env.EMAIL_USER}>`,
-    to: toEmail,
-    subject: '📨 Your request has been received',
-    html: `
-      <h3>Hello,</h3>
-      <p>Your request (Ticket ID: <strong>#${ticketId}</strong>) has been received and is being processed.</p>
-      <p>We'll notify you once it's completed.</p>
-      <br/>
-      <small>This is an automated email from Unfree Portal.</small>
-    `
-  };
-  await transporter.sendMail(mailOptions);
-};
 
-const sendTicketCompletedEmail = async (toEmail, ticketId) => {
-  const mailOptions = {
-    from: `"Unfree Portal" <${process.env.EMAIL_USER}>`,
-    to: toEmail,
-    subject: '✅ Your ticket is completed',
-    html: `
-      <h3>Hello,</h3>
-      <p>Your ticket <strong>#${ticketId}</strong> has been completed.</p>
-      <p>If you have more issues, feel free to raise another request.</p>
-      <br/>
-      <small>This is an automated email from Unfree Portal.</small>
-    `
-  };
-  await transporter.sendMail(mailOptions);
-};
+// -------------------
+// Create Ticket
+// -------------------
+exports.createTicket = async (req, res) => {
+  try {
+    const { name, email, subject, message } = req.body;
+    const filePath = req.file ? req.file.path : null;
 
-module.exports = {
-  sendTicketReceivedEmail,
-  sendTicketCompletedEmail
+    // 1. Scan uploaded file BEFORE saving
+    if (filePath && clamscan) {
+      const { isInfected, viruses } = await clamscan.scanFile(filePath);
+
+      if (isInfected) {
+        console.error("🚨 Malicious file blocked:", viruses);
+
+        // delete the file from disk
+        const fs = require('fs');
+        fs.unlinkSync(filePath);
+
+        return res.status(400).json({
+          error: "Malicious file detected. Upload blocked.",
+          details: viruses
+        });
+      }
+    }
+
+    // 2. Save to DB only if clean
+    const [result] = await db.query(
+      'INSERT INTO requests (name, email, subject, message, document) VALUES (?, ?, ?, ?, ?)',
+      [name, email, subject, message, filePath]
+    );
+
+    // 3. Send confirmation email
+    await sendTicketReceivedEmail(email, result.insertId);
+
+    res.status(201).json({
+      message: "Ticket created successfully",
+      ticketId: result.insertId
+    });
+
+  } catch (err) {
+    console.error("❌ Error creating ticket:", err);
+    res.status(500).json({ error: "Server error" });
+  }
 };

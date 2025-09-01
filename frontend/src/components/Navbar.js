@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import logo from '../assets/LOGO.png';
+
 
 const reportLinks = [
   { label: "User Requests", to: "/admin/requests" },
@@ -18,7 +20,8 @@ const Navbar = () => {
   const location = useLocation();
   const role = localStorage.getItem('role');
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
-  // Instead of dropdown, show expandable for reports section
+  // Instead of dropdown, show expandable for reports 
+  // section
   const [reportsOpen, setReportsOpen] = useState(false);
 
   useEffect(() => {
@@ -41,7 +44,11 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <Link to="/" className="logo">
-        TamilNadu Cyber<br />Crime Wing
+        <img 
+          src= {logo}   // <-- put your logo image path here (e.g. public/logo.png)
+          // alt="TamilNadu Cyber Crime Wing"
+          style={{ height: '100px', width: 'auto', marginRight: '15px' }} // adjust size as needed
+        />
       </Link>
       <div className="nav-links">
         {!role && (

@@ -4,31 +4,42 @@ import axios from 'axios';
 import { useState, useEffect } from 'react';
 
 // File validation helper
-const isPdfUnder2mb = (file) =>
-  file && file.type === 'application/pdf' && file.size < 2 * 1024 * 1024;
+const isPdfUnder2mb = (file) => {
+  if (!file) return false;
+  if (file.type !== 'application/pdf') return false;
+  if (file.size > 2 * 1024 * 1024) return false; // > 2 MB
+  return true;
+};
 
 // Validation schemas
 const infoSchema = Yup.object({
   name: Yup.string().required('Required'),
-  mobile: Yup.string().matches(/^\d{10}$/, 'Mobile must be exactly 10 digits').required('Required'),
+  mobile: Yup.string()
+    .required('Required')
+    .matches(/^\d+$/, 'Only digits allowed')
+    .min(10, 'Mobile must be exactly 10 digits')
+    .max(10, 'Mobile must be exactly 10 digits'),
   email: Yup.string().email('Invalid email').required('Required'),
   account_type: Yup.string().required('Required'),
-  account_type_other: Yup.string()
-    .when('account_type', {
-      is: 'Others',
-      then: () => Yup.string().min(2, 'Specify account type').required('Required'),
-      otherwise: () => Yup.string().notRequired(),
-    }),
-  account_number: Yup.string().matches(/^\d{9,18}$/, 'Account number must be 9–18 digits').required('Required'),
+  account_type_other: Yup.string().when('account_type', {
+    is: 'Others',
+    then: () => Yup.string().min(2, 'Specify account type').required('Required'),
+    otherwise: () => Yup.string().notRequired(),
+  }),
+  account_number: Yup.string()
+    .matches(/^\d{9,18}$/, 'Account number must be 9–18 digits')
+    .required('Required'),
   ncrp_ack_number: Yup.string()
-    .matches(/^329/, "This NCRP number doesn't fall under Tamil Nadu CCPS jurisdiction, kindly contact the other state CCPS")
+    .matches(
+      /^329/,
+      "The entire acknowledgement number doesn't pertain to the state of Tamil Nadu."
+    )
     .notRequired(),
-  business_description: Yup.string()
-    .when('account_type', {
-      is: 'Current',
-      then: () => Yup.string().min(2, 'Business description required for Current account').required('Required'),
-      otherwise: () => Yup.string().notRequired(),
-    }),
+  business_description: Yup.string().when('account_type', {
+    is: 'Current',
+    then: () => Yup.string().min(2, 'Business description required for Current account').required('Required'),
+    otherwise: () => Yup.string().notRequired(),
+  }),
   transaction_reason: Yup.string().notRequired(),
   id_proof_type: Yup.string().required('Required'),
 });
@@ -69,17 +80,13 @@ const PublicUserForm = () => {
   const [submitStatus, setSubmitStatus] = useState({ sent: false, ref: null, error: null });
 
   useEffect(() => {
-    const observer = new MutationObserver(() =>
-      setTheme(document.body.className)
-    );
+    const observer = new MutationObserver(() => setTheme(document.body.className));
     observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
     return () => observer.disconnect();
   }, []);
 
-  // Reference to store details form values from first form
   const [infoFormValues, setInfoFormValues] = useState(defaultInfoVals);
 
-  // Handle details form submission (store values but do not submit to backend here)
   const handleDetailsSubmit = (values) => {
     setInfoFormValues({
       ...values,
@@ -88,19 +95,14 @@ const PublicUserForm = () => {
     setSubmitStatus({ sent: false, ref: null, error: null });
   };
 
-  // Handle final submission (files + previously saved details combined)
   const handleFinalSubmit = async (files, { setSubmitting, resetForm }) => {
     const formData = new FormData();
-
-    // Append all user details from infoFormValues to formData
     Object.entries(infoFormValues).forEach(([key, value]) => {
-      // Only append if value is not null/undefined
       if (value !== null && value !== undefined) {
         formData.append(key, value);
       }
     });
 
-    // Append files
     formData.append('id_proof', files.id_proof_file);
     formData.append('account_opening_form', files.account_opening_file);
     formData.append('business_proof', files.business_proof_file);
@@ -111,7 +113,6 @@ const PublicUserForm = () => {
       });
       setSubmitStatus({ sent: true, ref: res.data.reference_number, error: null });
       resetForm();
-      // Reset details form values after submission
       setInfoFormValues(defaultInfoVals);
     } catch (error) {
       setSubmitStatus({
@@ -127,7 +128,7 @@ const PublicUserForm = () => {
     <section className="page-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
       {/* Details Form */}
       <div className="card">
-        <h2 className="title">Raise Unfreeze Request</h2>
+        <h2 className="title">Account Unfreeze Request Form</h2>
         <Formik
           initialValues={defaultInfoVals}
           validationSchema={infoSchema}
@@ -169,6 +170,7 @@ const PublicUserForm = () => {
                   <ErrorMessage name="ncrp_ack_number" component="div" className="error" />
                 </div>
 
+                {/* Account type */}
                 <div className="input-group" style={{ gridColumn: '1 / span 2' }}>
                   <label>Account Type</label>
                   <div style={{ display: 'flex', gap: 21, alignItems: 'center' }}>
@@ -227,7 +229,7 @@ const PublicUserForm = () => {
               <button
                 type="submit"
                 disabled={!(dirty && isValid)}
-                style={{ marginTop: 20, cursor: !(dirty && isValid) ? "not-allowed" : "pointer" }}
+                style={{ marginTop: 20, cursor: !(dirty && isValid) ? 'not-allowed' : 'pointer' }}
               >
                 Save Details (Then upload documents below)
               </button>
@@ -252,53 +254,109 @@ const PublicUserForm = () => {
           onSubmit={handleFinalSubmit}
           enableReinitialize
         >
-          {({ setFieldValue, isSubmitting, isValid }) => (
-            <Form>
-              <div className="grid" style={{ gridTemplateColumns: '1fr', gap: 23 }}>
-                <div className="input-group">
-                  <label htmlFor="id_proof_file">ID Proof (PDF, &lt;2MB)</label>
-                  <input
-                    id="id_proof_file"
-                    name="id_proof_file"
-                    type="file"
-                    accept="application/pdf"
-                    onChange={(e) => setFieldValue('id_proof_file', e.currentTarget.files[0])}
-                    className="input"
-                  />
-                  <ErrorMessage name="id_proof_file" component="div" className="error" />
-                </div>
+          {({ setFieldValue, values, isSubmitting, isValid }) => (
+  <Form>
+    <div className="grid" style={{ gridTemplateColumns: '1fr', gap: 23 }}>
+      {/* ID Proof */}
+      <div className="input-group">
+        <label htmlFor="id_proof_file">ID Proof (PDF, &lt;2MB)</label>
+        <input
+          id="id_proof_file"
+          name="id_proof_file"
+          type="file"
+          accept="application/pdf"
+          onChange={(e) => {
+            setFieldValue('id_proof_file', e.currentTarget.files[0]);
+          }}
+          className="input"
+        />
+        {values.id_proof_file && (
+          <div style={{ marginTop: 6 }}>
+            <small>
+              File: <b>{values.id_proof_file.name}</b> (
+              {(values.id_proof_file.size / 1024 / 1024).toFixed(2)} MB)
+            </small>
+            {values.id_proof_file.size > 2 * 1024 * 1024 ? (
+              <div className="error">❌ File too large (max 2MB)</div>
+            ) : values.id_proof_file.type !== 'application/pdf' ? (
+              <div className="error">❌ Only PDF allowed</div>
+            ) : (
+              <div style={{ color: 'green' }}>✅ File under limit</div>
+            )}
+          </div>
+        )}
+        <ErrorMessage name="id_proof_file" component="div" className="error" />
+      </div>
 
-                <div className="input-group">
-                  <label htmlFor="account_opening_file">Account Opening Form (PDF, &lt;2MB)</label>
-                  <input
-                    id="account_opening_file"
-                    name="account_opening_file"
-                    type="file"
-                    accept="application/pdf"
-                    onChange={(e) => setFieldValue('account_opening_file', e.currentTarget.files[0])}
-                    className="input"
-                  />
-                  <ErrorMessage name="account_opening_file" component="div" className="error" />
-                </div>
+      {/* Account Opening Form */}
+      <div className="input-group">
+        <label htmlFor="account_opening_file">Account Ownership Proof (PDF, &lt;2MB)</label>
+        <input
+          id="account_opening_file"
+          name="account_opening_file"
+          type="file"
+          accept="application/pdf"
+          onChange={(e) => {
+            setFieldValue('account_opening_file', e.currentTarget.files[0]);
+          }}
+          className="input"
+        />
+        {values.account_opening_file && (
+          <div style={{ marginTop: 6 }}>
+            <small>
+              File: <b>{values.account_opening_file.name}</b> (
+              {(values.account_opening_file.size / 1024 / 1024).toFixed(2)} MB)
+            </small>
+            {values.account_opening_file.size > 2 * 1024 * 1024 ? (
+              <div className="error">❌ File too large (max 2MB)</div>
+            ) : values.account_opening_file.type !== 'application/pdf' ? (
+              <div className="error">❌ Only PDF allowed</div>
+            ) : (
+              <div style={{ color: 'green' }}>✅ File under limit</div>
+            )}
+          </div>
+        )}
+        <ErrorMessage name="account_opening_file" component="div" className="error" />
+      </div>
 
-                <div className="input-group">
-                  <label htmlFor="business_proof_file">Business Establishment Proof (PDF, &lt;2MB)</label>
-                  <input
-                    id="business_proof_file"
-                    name="business_proof_file"
-                    type="file"
-                    accept="application/pdf"
-                    onChange={(e) => setFieldValue('business_proof_file', e.currentTarget.files[0])}
-                    className="input"
-                  />
-                  <ErrorMessage name="business_proof_file" component="div" className="error" />
-                </div>
-              </div>
-              <button type="submit" disabled={!isValid || isSubmitting} style={{ marginTop: 25 }}>
-                {isSubmitting ? 'Submitting...' : 'Submit Request'}
-              </button>
-            </Form>
-          )}
+      {/* Business Proof */}
+      <div className="input-group">
+        <label htmlFor="business_proof_file">Business Establishment Proof (PDF, &lt;2MB)</label>
+        <input
+          id="business_proof_file"
+          name="business_proof_file"
+          type="file"
+          accept="application/pdf"
+          onChange={(e) => {
+            setFieldValue('business_proof_file', e.currentTarget.files[0]);
+          }}
+          className="input"
+        />
+        {values.business_proof_file && (
+          <div style={{ marginTop: 6 }}>
+            <small>
+              File: <b>{values.business_proof_file.name}</b> (
+              {(values.business_proof_file.size / 1024 / 1024).toFixed(2)} MB)
+            </small>
+            {values.business_proof_file.size > 2 * 1024 * 1024 ? (
+              <div className="error">❌ File too large (max 2MB)</div>
+            ) : values.business_proof_file.type !== 'application/pdf' ? (
+              <div className="error">❌ Only PDF allowed</div>
+            ) : (
+              <div style={{ color: 'green' }}>✅ File under limit</div>
+            )}
+          </div>
+        )}
+        <ErrorMessage name="business_proof_file" component="div" className="error" />
+      </div>
+    </div>
+
+    <button type="submit" disabled={!isValid || isSubmitting} style={{ marginTop: 25 }}>
+      {isSubmitting ? 'Submitting...' : 'Submit Request'}
+    </button>
+  </Form>
+)}
+
         </Formik>
 
         {submitStatus.sent && (
@@ -306,9 +364,7 @@ const PublicUserForm = () => {
             Request submitted! Reference #: {submitStatus.ref}
           </div>
         )}
-        {submitStatus.error && (
-          <div className="error" style={{ marginTop: 14 }}>{submitStatus.error}</div>
-        )}
+        {submitStatus.error && <div className="error" style={{ marginTop: 14 }}>{submitStatus.error}</div>}
       </div>
     </section>
   );
