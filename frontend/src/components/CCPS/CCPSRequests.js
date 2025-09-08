@@ -79,6 +79,25 @@ const CCPSRequests = () => {
     }
   };
 
+  const handleDecision = async (requestId, decision) => {
+    try {
+      if (decision === "Declined") {
+        const confirmDecline = window.confirm(
+          "Are you sure you want to decline this request? This action cannot be undone."
+        );
+        if (!confirmDecline) return;
+      }
+      await axios.post(
+        "/api/CCPS/decision",
+        { requestId, status: decision },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      fetchRequests();
+    } catch (err) {
+      console.error(`Failed to update decision for #${requestId}:`, err);
+    }
+  };
+
   const renderDocuments = (req) => {
     const docs = docUrls[req.id] || [];
     if (!docs.length) return <p>No documents</p>;
@@ -126,7 +145,7 @@ const CCPSRequests = () => {
               <th>Name</th>
               <th>Reference</th>
               <th>Status</th>
-              <th>Update</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -143,12 +162,40 @@ const CCPSRequests = () => {
                   <td>{req.reference_number}</td>
                   <td>{req.status}</td>
                   <td>
-                    <button onClick={(e) => { e.stopPropagation(); handleActionClick('Completed', req.id); }}>
-                      Mark Completed
-                    </button>
-                    <button onClick={(e) => { e.stopPropagation(); handleActionClick('Rejected', req.id); }}>
-                      Reject
-                    </button>
+                    {/* --- Decision Stage --- */}
+                    {req.status === "Pending" && (
+                      <>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleDecision(req.id, "Accepted"); }}
+                          style={{ background: "#28a745", color: "#fff", marginRight: 8, border: "none", padding: "5px 10px", borderRadius: 4 }}
+                        >
+                          Accept
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleDecision(req.id, "Declined"); }}
+                          style={{ background: "#dc3545", color: "#fff", border: "none", padding: "5px 10px", borderRadius: 4 }}
+                        >
+                          Decline
+                        </button>
+                      </>
+                    )}
+
+                    {/* --- After Accepted --- */}
+                    {req.status === "Accepted" && (
+                      <>
+                        <button onClick={(e) => { e.stopPropagation(); handleActionClick('Completed', req.id); }}>
+                          Mark Completed
+                        </button>
+                        <button onClick={(e) => { e.stopPropagation(); handleActionClick('Rejected', req.id); }}>
+                          Reject
+                        </button>
+                      </>
+                    )}
+
+                    {/* --- Declined Locked --- */}
+                    {req.status === "Declined" && (
+                      <span style={{ color: "#dc3545", fontWeight: 600 }}>Declined</span>
+                    )}
                   </td>
                 </tr>
                 {expandedRow === req.id && (

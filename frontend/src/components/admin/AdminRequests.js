@@ -233,7 +233,7 @@ const renderDocuments = (req) => {
 return (
   <div className="page-wrapper">
     <div className="card">
-      <h2 className="title">Requests</h2>
+      <h2 className="title">Status Report</h2>
       <div className="summary-bar"
         style={{
           padding: "10px 16px",

@@ -145,7 +145,7 @@ export default function AdminOverallReports() {
 
   return (
     <div className="admin-overall-reports" style={{ maxWidth: 1300, margin: "0 auto", padding: 70, marginLeft: "350px" }}>
-      <h2>Admin Overall Reports</h2>
+      <h2>Overall Performance Reports</h2>
 
       {/* Pie Chart */}
       <section>

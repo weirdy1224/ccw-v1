@@ -108,6 +108,25 @@ router.post('/status', async (req, res) => {
 });
 
 
+router.post("/decision", async (req, res) => {
+  try {
+    const { requestId, status } = req.body;
+
+    if (!requestId || !["Accepted", "Declined"].includes(status)) {
+      return res.status(400).json({ error: "Invalid request" });
+    }
+
+    // Update the DB
+    await db.query("UPDATE requests SET status = ? WHERE id = ?", [status, requestId]);
+
+    res.json({ success: true, message: `Request ${status}` });
+  } catch (err) {
+    console.error("Error in /api/CCPS/decision:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
 
   // ✅ Fetch uploaded documents
   router.get('/documents/:requestId', async (req, res) => {

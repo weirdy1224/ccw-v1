@@ -119,7 +119,7 @@ const CCPSAssignments = () => {
   return (
     <div className="pa-wrapper">
       <div className="pa-header-row">
-        <h2>CCPS Assignments</h2>
+        <h2>CCPS Wise Reports</h2>
         <MultiSelect
           options={CCPSUsers}
           selected={selectedOfficers}

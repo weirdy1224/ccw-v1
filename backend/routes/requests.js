@@ -79,15 +79,15 @@ const upload = multer({
 let clamscanInstance;
 (async () => {
   try {
-    // If macOS/Homebrew, prefer CLI path
     clamscanInstance = await new NodeClam().init({
       removeInfected: false,
       quarantineInfected: false,
       scanRecursively: false,
       debugMode: true,
+      
       preference: 'clamscan', // simpler on macOS
       clamscan: {
-        path: process.env.CLAMSCAN_PATH || '/opt/homebrew/bin/clamscan', // update for your platform
+        path: process.env.CLAMSCAN_PATH || "C:\\Program Files\\ClamAV\\clamscan.exe", // update for your platform
         scanArchives: true
       },
       clamdscan: {
@@ -150,10 +150,10 @@ module.exports = (db) => {
       }
 
       try {
-        const tempFiles = [];
-        if (req.files?.['id_proof']) tempFiles.push(req.files['id_proof'][0]);
-        if (req.files?.['account_opening_form']) tempFiles.push(req.files['account_opening_form']); // fixed
-        if (req.files?.['business_proof']) tempFiles.push(req.files['business_proof']); // fixed
+       const tempFiles = [];
+if (req.files?.['id_proof']?.[0]) tempFiles.push(req.files['id_proof'][0]);
+if (req.files?.['account_opening_form']?.[0]) tempFiles.push(req.files['account_opening_form'][0]);
+if (req.files?.['business_proof']?.[0]) tempFiles.push(req.files['business_proof'][0]);
 
         console.log('[FILES] Received:', tempFiles.map(f => `${f.fieldname}:${f.originalname}`).join(', ') || 'none');
 

@@ -4,15 +4,15 @@ import logo from '../assets/LOGO.png';
 
 
 const reportLinks = [
-  { label: "User Requests", to: "/admin/requests" },
-  { label: "CCPS Assignments", to: "/admin/CCPS-assignments" },
-  { label: "Overall Reports", to: "/admin/overall-reports" },
+  { label: "Status Reports", to: "/admin/requests" },
+  { label: "CCPS Wise Reports", to: "/admin/CCPS-assignments" },
+  { label: "Performance Reports", to: "/admin/overall-reports" },
 ];
 
 const controllerReportLinks = [
-  { label: "User Requests", to: "/controller/requests" },
-  { label: "CCPS Assignments", to: "/controller/CCPS-assignments" },
-  { label: "Overall Reports", to: "/controller/overall-reports" },
+  { label: "Status Reports", to: "/controller/requests" },
+  { label: "CCPS Wise Reports", to: "/controller/CCPS-assignments" },
+  { label: "Performance Reports", to: "/controller/overall-reports" },
 ];
 
 const Navbar = () => {
