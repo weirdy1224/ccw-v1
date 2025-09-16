@@ -21,14 +21,12 @@ db.init().then(() => {
   const adminRoutes = require('./routes/admin')(connection);
   const controllerRoutes = require('./routes/controller')(connection);
   const CCPSRoutes = require('./routes/CCPS')(connection);
-  const spRoutes = require('./routes/sp.js')(connection);
 
   app.use('/api/auth', authRoutes);
   app.use('/api/requests', requestRoutes);
   app.use('/api/admin', adminRoutes);
   app.use('/api/controller', controllerRoutes);
   app.use('/api/CCPS', CCPSRoutes);
-  app.use('/api/sp',spRoutes);
 
   app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);

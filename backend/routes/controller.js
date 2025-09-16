@@ -2,29 +2,26 @@
 const express = require('express');
 const auth = require('../middleware/auth');
 const bcrypt = require('bcryptjs');
+const authMiddleware = require('../middleware/auth');
 module.exports = (db) => {
   const router = express.Router();
-  router.post('/create-CCPS', async (req, res) => {
-    const { username, password } = req.body;
+router.post('/create-CCPS', authMiddleware(['controller', 'admin']), async (req, res) => {
+  const db = getConnection();
+  const { username, password, zone } = req.body;
 
-    if (!username || !password) {
-      return res.status(400).json({ message: 'Username and password required' });
-    }
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await db.query(
+      `INSERT INTO ccps (name, password, role, zone) VALUES (?, ?, 'CCPS', ?)`,
+      [username, hashedPassword, zone || 'SP 1']
+    );
+    res.json({ message: 'CCPS user created successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ message: 'Error creating CCPS user' });
+  }
+});
 
-    try {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      await db.query(
-        'INSERT INTO users (username, password, role) VALUES (?, ?, ?)',
-        [username, hashedPassword, 'CCPS']
-      );
-      res.json({ message: '✅ CCPS user created successfully.' });
-    } catch (err) {
-      if (err.code === 'ER_DUP_ENTRY') {
-        return res.status(400).json({ message: 'Username already exists' });
-      }
-      res.status(500).json({ message: '❌ Failed to create CCPS user', error: err.message });
-    }
-  });
   // routes/controller.js
 router.get('/documents/:requestId', async (req, res) => {
   const { requestId } = req.params;

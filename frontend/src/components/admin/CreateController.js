@@ -10,14 +10,20 @@ const CreateController = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
+
     try {
-      await axios.post('/api/admin/create-controller', form, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setMessage('✅ Controller created successfully.');
-      setForm({ username: '', password: '' });
+      const res = await axios.post(
+        '/api/admin/create-controller',
+        form,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setMessage(res.data.message || '✅ Controller created successfully.');
+      setForm({ username: '', password: '' }); // reset form
     } catch (err) {
-      setMessage('❌ ' + (err.response?.data?.message || 'Error creating controller'));
+      const errorMsg =
+        err.response?.data?.message || '❌ Error creating controller';
+      setMessage(errorMsg);
     }
   };
 
@@ -46,7 +52,11 @@ const CreateController = () => {
           </div>
           <button type="submit">Create</button>
         </form>
-        {message && <p style={{ marginTop: '1rem' }}>{message}</p>}
+        {message && (
+          <p style={{ marginTop: '1rem', color: message.startsWith('✅') ? 'green' : 'red' }}>
+            {message}
+          </p>
+        )}
       </div>
     </div>
   );
