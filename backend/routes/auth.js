@@ -13,23 +13,35 @@ module.exports = (db) => {
     }
 
     try {
-      const [results] = await db.query('SELECT * FROM users WHERE username = ?', [username]);
-      if (results.length === 0) {
-        return res.status(400).json({ message: 'Invalid username or password' });
+      // 1️⃣ Check users table (admin/controller)
+      const [users] = await db.query('SELECT * FROM users WHERE username = ?', [username]);
+      if (users.length > 0) {
+        const user = users[0];
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) return res.status(400).json({ message: 'Invalid password' });
+
+        const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '2h' });
+        return res.json({ token, role: user.role, username: user.username });
       }
 
-      const user = results[0];
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(400).json({ message: 'Invalid password' });
+      // 2️⃣ Check CCPS table
+      const [ccps] = await db.query('SELECT * FROM ccps WHERE name = ?', [username]);
+      if (ccps.length > 0) {
+        const station = ccps[0];
+
+        // ✅ Ensure passwords are hashed in CCPS table
+        if (!station.password) return res.status(400).json({ message: 'Password not set for this station' });
+
+        const isMatch = await bcrypt.compare(password, station.password);
+        if (!isMatch) return res.status(400).json({ message: 'Invalid password' });
+
+        const token = jwt.sign({ id: station.ccps_id, role: 'CCPS' }, process.env.JWT_SECRET, { expiresIn: '2h' });
+        return res.json({ token, role: 'CCPS', username: station.name });
       }
 
-      const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, {
-        expiresIn: '2h',
-      });
-
-      res.json({ token, role: user.role });
+      return res.status(400).json({ message: 'Invalid username or password' });
     } catch (err) {
+      console.error('Login error:', err);
       res.status(500).json({ message: 'Login failed', error: err.message });
     }
   });

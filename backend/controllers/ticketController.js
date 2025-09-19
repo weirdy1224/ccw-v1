@@ -1,28 +1,30 @@
 const db = require('../config/db');
 const NodeClam = require('clamscan');
 const path = require('path');
+const fs = require('fs');
 const { sendTicketReceivedEmail } = require('../mailer');
 
-let clamscan;
+let clamscan; // global instance
 
-// Initialize ClamAV once (not on every request)
+// ------------------------------------
+// Initialize ClamAV once on server start
+// ------------------------------------
 (async () => {
   try {
     clamscan = await new NodeClam().init({
       debugMode: true,
-      preference: 'clamscan',
+      preference: 'clamscan',      // Prefer using clamscan binary
       clamscan: {
-        path: "C:\\Program Files\\ClamAV\\clamscan.exe",
+        path: "/opt/homebrew/bin/clamscan", // Path to clamscan binary
         scanArchives: true,
         active: true
       },
       clamdscan: { active: false },
-      // 🔑 Important on Windows: let Node spawn via shell
-      scanLog: null,
-      removeInfected: false,
-      quarantineInfected: false,
-      exec: { 
-        shell: true // <-- Fix spawn UNKNOWN on Windows
+      removeInfected: false,       // Don't remove automatically
+      quarantineInfected: false,   // Don't quarantine automatically
+      scanLog: null,                // Optional: set path to scan log
+      exec: {
+        shell: true                 // Needed on Windows to fix spawn UNKNOWN
       }
     });
 
@@ -33,23 +35,23 @@ let clamscan;
 })();
 
 
-// -------------------
-// Create Ticket
-// -------------------
+// ------------------------------------
+// Create Ticket Controller
+// ------------------------------------
 exports.createTicket = async (req, res) => {
   try {
     const { name, email, subject, message } = req.body;
     const filePath = req.file ? req.file.path : null;
 
-    // 1. Scan uploaded file BEFORE saving
+    // 1. Scan uploaded file BEFORE saving to DB
     if (filePath && clamscan) {
+      console.log(`🦠 Scanning uploaded file: ${filePath}`);
       const { isInfected, viruses } = await clamscan.scanFile(filePath);
 
       if (isInfected) {
         console.error("🚨 Malicious file blocked:", viruses);
 
-        // delete the file from disk
-        const fs = require('fs');
+        // Delete infected file from disk
         fs.unlinkSync(filePath);
 
         return res.status(400).json({
@@ -59,7 +61,7 @@ exports.createTicket = async (req, res) => {
       }
     }
 
-    // 2. Save to DB only if clean
+    // 2. Insert request into database
     const [result] = await db.query(
       'INSERT INTO requests (name, email, subject, message, document) VALUES (?, ?, ?, ?, ?)',
       [name, email, subject, message, filePath]
@@ -68,6 +70,7 @@ exports.createTicket = async (req, res) => {
     // 3. Send confirmation email
     await sendTicketReceivedEmail(email, result.insertId);
 
+    // 4. Respond to client
     res.status(201).json({
       message: "Ticket created successfully",
       ticketId: result.insertId

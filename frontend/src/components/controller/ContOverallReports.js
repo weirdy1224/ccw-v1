@@ -144,8 +144,8 @@ export default function ContOverallReports() {
   const paginatedCCPS = ccpsPendency.slice((page - 1) * perPage, page * perPage);
 
   return (
-    <div className="admin-overall-reports" style={{ maxWidth: 1300, margin: "0 auto", padding: 70, marginLeft: "350px" }}>
-      <h2>Overall Reports</h2>
+    <div className="controller-overall-reports" style={{ maxWidth: 1300, margin: "0 auto", padding: 70, marginLeft: "350px" }}>
+      <h2>Overall Performance Reports</h2>
 
       {/* Pie Chart */}
       <section>

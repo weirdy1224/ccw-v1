@@ -74,15 +74,14 @@ const ControllerDashboard = () => {
   const completedCount = filteredRequests.filter(r => r.status === 'Completed').length;
   const rejectedCount = filteredRequests.filter(r => r.status === 'Rejected').length;
   const pendingCount = filteredRequests.filter(r => r.status === 'Pending').length;
-  const receivedCount = filteredRequests.filter(r => r.status === 'Received').length;
 
   const chartData = {
-    labels: ['Completed', 'Rejected', 'Pending', 'Received'],
+    labels: ['Completed', 'Rejected', 'Pending'],
     datasets: [
       {
-        data: [completedCount, rejectedCount, pendingCount, receivedCount],
-        backgroundColor: ['#28a745', '#dc3545', '#ffc107', '#007bff'],
-        hoverBackgroundColor: ['#218838', '#c82333', '#e0a800', '#0069d9'],
+        data: [completedCount, rejectedCount, pendingCount],
+        backgroundColor: ['#28a745', '#dc3545', '#ffc107'],
+        hoverBackgroundColor: ['#218838', '#c82333', '#e0a800'],
         borderWidth: 2
       }
     ]
@@ -104,8 +103,8 @@ const ControllerDashboard = () => {
         alignItems: 'flex-start',
         padding: '100px',
         height: '100vh',
-        marginLeft :'200px',
-        paddingTop : '200px'
+        marginLeft: '200px',
+        paddingTop: '200px'
       }}
     >
       <div style={{ display: 'flex', gap: '3rem', alignItems: 'center' }}>
@@ -115,31 +114,28 @@ const ControllerDashboard = () => {
             <Doughnut data={chartData} options={chartOptions} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-            <button
-              className={`filter-btn ${timeFilter === 'year' ? 'active' : ''}`}
-              onClick={() => setTimeFilter('year')}
-            >
-              This yr
-            </button>
-            <button
-              className={`filter-btn ${timeFilter === 'month' ? 'active' : ''}`}
-              onClick={() => setTimeFilter('month')}
-            >
-              This month
-            </button>
-            <button
-              className={`filter-btn ${timeFilter === 'week' ? 'active' : ''}`}
-              onClick={() => setTimeFilter('week')}
-            >
-              This week
-            </button>
-            <button
-              className={`filter-btn ${timeFilter === 'all' ? 'active' : ''}`}
-              onClick={() => setTimeFilter('all')}
-            >
-              All
-            </button>
+            {['year', 'month', 'week', 'all'].map((filter) => (
+              <button
+                key={filter}
+                onClick={() => setTimeFilter(filter)}
+                style={{
+                  padding: '8px 14px',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  color: 'black',
+                  background: timeFilter === filter ? '#2585eb' : '#ccc',
+                  transition: 'background 0.2s ease',
+                }}
+              >
+                {filter === 'year' && 'This yr'}
+                {filter === 'month' && 'This month'}
+                {filter === 'week' && 'This week'}
+                {filter === 'all' && 'All'}
+              </button>
+            ))}
           </div>
+
         </div>
 
         {/* Right: Metrics in 2x2 Grid */}

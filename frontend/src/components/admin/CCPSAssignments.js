@@ -1,30 +1,66 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import axios from 'axios';
 
-// MultiSelect is visually improved for integration below
+// --- MultiSelect with "Select All" (applies to currently filtered options) ---
 function MultiSelect({ options, selected, onChange, placeholder }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
-  const filtered = useMemo(() =>
-    options.filter(
-      o =>
-        o.username.toLowerCase().includes(search.toLowerCase()) ||
-        (o.station_name && o.station_name.toLowerCase().includes(search.toLowerCase()))
-    ),
+  const containerRef = useRef(null);
+
+  const filtered = useMemo(
+    () =>
+      options.filter(
+        o =>
+          o.username.toLowerCase().includes(search.toLowerCase()) ||
+          (o.station_name && o.station_name.toLowerCase().includes(search.toLowerCase()))
+      ),
     [options, search]
   );
-  const toggle = () => setOpen((a) => !a);
+
+  // close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const toggle = () => setOpen(a => !a);
   const clear = () => { onChange([]); setSearch(''); };
+
   const handleSelect = (id) => {
     if (selected.includes(id)) onChange(selected.filter(x => x !== id));
     else onChange([...selected, id]);
   };
+
+  // Select / Deselect all currently filtered options
+  const handleSelectAllFiltered = () => {
+    const filteredIds = filtered.map(o => o.id);
+    if (filteredIds.length === 0) return;
+    const allSelected = filteredIds.every(id => selected.includes(id));
+    if (allSelected) {
+      // remove the filtered ids from selection
+      onChange(selected.filter(id => !filteredIds.includes(id)));
+    } else {
+      // add the filtered ids to selection (preserve existing)
+      const newSelected = [...new Set([...selected, ...filteredIds])];
+      onChange(newSelected);
+    }
+  };
+
+  // Helper for checkbox state for "Select All (filtered)"
+  const isAllFilteredSelected = filtered.length > 0 && filtered.every(o => selected.includes(o.id));
+
   return (
-    <div className="pa-multiselect">
+    <div className="pa-multiselect" ref={containerRef}>
       <div className="pa-multiselect-label" tabIndex={0} onClick={toggle}>
         {selected.length ? `${selected.length} selected` : placeholder || "Select"}
         <span className="pa-multiselect-arrow">{open ? "▲" : "▼"}</span>
       </div>
+
       {open && (
         <div className="pa-multiselect-dropdown">
           <input
@@ -33,9 +69,30 @@ function MultiSelect({ options, selected, onChange, placeholder }) {
             onChange={e => setSearch(e.target.value)}
             className="pa-multiselect-search"
           />
+
           <div className="pa-multiselect-options">
+            {/* Select All (applies only to filtered results) */}
+            {options.length > 0 && (
+              <label
+                className={`pa-multiselect-option pa-multiselect-option--selectall${isAllFilteredSelected ? ' pa-multiselect-option--selected' : ''}`}
+                key="__select_all__"
+              >
+                <input
+                  type="checkbox"
+                  checked={isAllFilteredSelected}
+                  onChange={handleSelectAllFiltered}
+                  tabIndex={-1}
+                />
+                <span>Select All (visible)</span>
+              </label>
+            )}
+
+            {/* Individual options */}
             {filtered.map(option => (
-              <label className={`pa-multiselect-option${selected.includes(option.id) ? ' pa-multiselect-option--selected' : ''}`} key={option.id}>
+              <label
+                className={`pa-multiselect-option${selected.includes(option.id) ? ' pa-multiselect-option--selected' : ''}`}
+                key={option.id}
+              >
                 <input
                   type="checkbox"
                   checked={selected.includes(option.id)}
@@ -48,11 +105,13 @@ function MultiSelect({ options, selected, onChange, placeholder }) {
                 </span>
               </label>
             ))}
+
             {filtered.length === 0 && <div style={{ padding: 10, color: '#888' }}>No matches</div>}
           </div>
+
           <div className="pa-multiselect-actions">
             <button type="button" onClick={clear}>Clear</button>
-            <button type="button" onClick={toggle}>Close</button>
+            <button type="button" onClick={() => { setSearch(''); setOpen(false); }}>Close</button>
           </div>
         </div>
       )}
@@ -60,6 +119,7 @@ function MultiSelect({ options, selected, onChange, placeholder }) {
   );
 }
 
+// --- CCPSAssignments component (full functionality restored) ---
 const CCPSAssignments = () => {
   const [requests, setRequests] = useState([]);
   const [CCPSUsers, setCCPSUsers] = useState([]);
@@ -69,19 +129,25 @@ const CCPSAssignments = () => {
   const [modalUser, setModalUser] = useState(null);
   const token = localStorage.getItem('token');
 
-  useEffect(() => { fetchData(); }, []);
-  const fetchData = async () => {
-    try {
-      const [reqRes, stationsRes] = await Promise.all([
-        axios.get('/api/admin/requests', { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get('/api/admin/stations', { headers: { Authorization: `Bearer ${token}` } }),
-      ]);
-      setRequests(reqRes.data); setCCPSUsers(stationsRes.data);
-    } catch (err) {
-      setError('Failed to load data.');
-    }
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // adjust endpoints if your API path differs
+        const [reqRes, stationsRes] = await Promise.all([
+          axios.get('/api/admin/requests', { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get('/api/admin/stations', { headers: { Authorization: `Bearer ${token}` } }),
+        ]);
+        setRequests(reqRes.data || []);
+        setCCPSUsers(stationsRes.data || []);
+      } catch (err) {
+        console.error(err);
+        setError('Failed to load data.');
+      }
+    };
+    fetchData();
+  }, [token]);
 
+  // compute per-officer stats (assigned, pending, completed, rejected)
   const officerStats = useMemo(() =>
     CCPSUsers.map(user => {
       const assigned = requests.filter(r => r.assigned_to === user.id);
@@ -100,19 +166,32 @@ const CCPSAssignments = () => {
     [requests, CCPSUsers]
   );
 
+  // filter by selected officers (if any)
   const filteredOfficers = useMemo(
     () => (selectedOfficers.length
       ? officerStats.filter(u => selectedOfficers.includes(u.id))
       : officerStats),
     [officerStats, selectedOfficers]
   );
+
+  // sorting
   const sortedOfficers = useMemo(() => {
     if (!sort.by) return filteredOfficers;
-    const sorted = [...filteredOfficers].sort((a, b) =>
-      sort.asc ? a[sort.by] - b[sort.by] : b[sort.by] - a[sort.by]
-    );
+    const sorted = [...filteredOfficers].sort((a, b) => {
+      // assume numeric fields for counts; fallback to string compare if needed
+      const va = a[sort.by];
+      const vb = b[sort.by];
+      if (typeof va === 'number' && typeof vb === 'number') {
+        return sort.asc ? va - vb : vb - va;
+      }
+      // fallback to string compare
+      return sort.asc
+        ? String(va).localeCompare(String(vb))
+        : String(vb).localeCompare(String(va));
+    });
     return sorted;
   }, [filteredOfficers, sort]);
+
   const openModal = (u) => setModalUser(u);
   const closeModal = () => setModalUser(null);
 
@@ -127,6 +206,7 @@ const CCPSAssignments = () => {
           placeholder="Filter CCPS users"
         />
       </div>
+
       {error && <p className="pa-error">{error}</p>}
 
       <div className="pa-table-scroll">
@@ -196,9 +276,7 @@ const CCPSAssignments = () => {
               </tr>
             )}
           </tbody>
-
         </table>
-
       </div>
 
       {modalUser && (
@@ -215,16 +293,16 @@ const CCPSAssignments = () => {
             </div>
 
             <ul className="pa-modal-case-list">
-              {modalUser.assigned.map(r => (
+              {modalUser.assigned && modalUser.assigned.length ? modalUser.assigned.map(r => (
                 <li key={r.id}>
                   <strong>{r.reference_number}</strong> – {r.status}
                   {r.status_reason ? <span className="pa-case-reason">({r.status_reason})</span> : ""}
                 </li>
-              ))}
-              {!modalUser.assigned.length &&
+              )) : (
                 <li className="pa-case-empty">No cases assigned.</li>
-              }
+              )}
             </ul>
+
             <div style={{ textAlign: 'right' }}>
               <button type="button" className="pa-modal-close" onClick={closeModal}>Close</button>
             </div>

@@ -87,7 +87,7 @@ let clamscanInstance;
       
       preference: 'clamscan', // simpler on macOS
       clamscan: {
-        path: process.env.CLAMSCAN_PATH || "C:\\Program Files\\ClamAV\\clamscan.exe", // update for your platform
+        path: process.env.CLAMSCAN_PATH || "/opt/homebrew/bin/clamscan", // update for your platform
         scanArchives: true
       },
       clamdscan: {
