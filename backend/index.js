@@ -12,6 +12,8 @@ app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+const ccpsAuth = require('./routes/ccpsAuth');
+app.use('/api/auth', ccpsAuth);
 
 db.init().then(() => {
   const connection = db.getConnection();
@@ -26,7 +28,7 @@ db.init().then(() => {
   app.use('/api/requests', requestRoutes);
   app.use('/api/admin', adminRoutes);
   app.use('/api/controller', controllerRoutes);
-  app.use('/api/CCPS', CCPSRoutes);
+  app.use('/api/ccps', CCPSRoutes);
 
   app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);

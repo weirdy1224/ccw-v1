@@ -87,13 +87,14 @@ let clamscanInstance;
       
       preference: 'clamscan', // simpler on macOS
       clamscan: {
-        path: process.env.CLAMSCAN_PATH || "/opt/homebrew/bin/clamscan", // update for your platform
+        path: process.env.CLAMSCAN_PATH || "C:\\Program Files\\ClamAV\\clamscan.exe", // update for your platform
         scanArchives: true
       },
       clamdscan: {
         host: process.env.CLAMD_HOST || '127.0.0.1',
         port: Number(process.env.CLAMD_PORT || 3310),
-        timeout: 60000
+        timeout: 60000,
+        active: false
       }
     });
     const ver = await clamscanInstance.getVersion().catch(() => null);

@@ -10,7 +10,6 @@ const AdminRequests = () => {
     to: "",
     status: "",
     assignedTo: "",
-    assignedBy: "",
   });
   const [loading, setLoading] = useState(true);
   const [expandedRow, setExpandedRow] = useState(null);
@@ -126,12 +125,11 @@ const renderStatus = (status) => {
     const fromDate = filters.from ? new Date(filters.from) : null;
     const toDate = filters.to ? new Date(filters.to) : null;
     const assignedMatch = filters.assignedTo ? String(req.assigned_to) === String(filters.assignedTo) : true;
-    const assignedByMatch = filters.assignedBy ? String(req.assigned_by) === String(filters.assignedBy) : true;
     const statusMatch = filters.status ? req.status === filters.status : true;
     const dateMatch =
       (!fromDate || (createdAt && createdAt >= fromDate)) &&
       (!toDate || (createdAt && createdAt <= toDate));
-    return dateMatch && statusMatch && assignedMatch && assignedByMatch;
+    return dateMatch && statusMatch && assignedMatch;
   });
 
   const handleFilterChange = (e) => {

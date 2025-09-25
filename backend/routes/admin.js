@@ -62,6 +62,39 @@ module.exports = () => {
       res.status(500).json({ message: "Failed to create CCPS user" });
     }
   });
+router.get("/documents/:requestId", authMiddleware(["controller", "admin"]), async (req, res) => {
+  const { requestId } = req.params;
+
+  try {
+    const [results] = await db.query(
+      "SELECT document_paths FROM requests WHERE id = ?",
+      [requestId]
+    );
+
+    if (!results.length) return res.status(404).json({ message: "Request not found" });
+
+    let pathsObj;
+    try {
+      pathsObj = JSON.parse(results[0].document_paths);
+    } catch {
+      pathsObj = { all: results[0].document_paths?.split(",") || [] };
+    }
+
+    const urls = Object.entries(pathsObj).map(([key, filePath]) => {
+      // Make relative path for URL
+      const relativePath = filePath.replace(/^.*uploads[\\/]/, "uploads/");
+      return {
+        type: key,
+        url: `${req.protocol}://${req.get("host")}/${relativePath.replace(/\\/g, "/")}`,
+      };
+    });
+
+    res.json({ urls });
+  } catch (err) {
+    console.error("❌ Fetch documents error:", err);
+    res.status(500).json({ message: "Failed to retrieve documents", error: err.message });
+  }
+});
 
   /**
    * LIST CONTROLLERS
@@ -145,28 +178,6 @@ module.exports = () => {
     } catch (err) {
       console.error("❌ Fetch CCPS assignments error:", err);
       res.status(500).json({ message: "Failed to fetch CCPS assignments" });
-    }
-  });
-
-  /**
-   * ASSIGN REQUEST TO CCPS
-   */
-  router.post("/assign", async (req, res) => {
-    const { requestId, ccpsId } = req.body;
-
-    if (!requestId) {
-      return res.status(400).json({ message: "Request ID is required" });
-    }
-
-    try {
-      await db.query("UPDATE requests SET assigned_to = ? WHERE id = ?", [
-        ccpsId || null,
-        requestId,
-      ]);
-      res.json({ message: "✅ Assignment successful" });
-    } catch (err) {
-      console.error("❌ Assignment error:", err);
-      res.status(500).json({ message: "Assignment failed" });
     }
   });
 

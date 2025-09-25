@@ -16,7 +16,7 @@ const CCPSDocuments = () => {
   // Fetch requests
   const fetchRequests = async () => {
     try {
-      const res = await axios.get('/api/CCPS/requests', config);
+      const res = await axios.get('/api/ccps/requests', config);
       setRequests(res.data);
     } catch (err) {
       console.error('Failed to load requests:', err.message);
@@ -26,7 +26,7 @@ const CCPSDocuments = () => {
   // Fetch documents for selected request
   const handleFetchDocuments = async () => {
     try {
-      const res = await axios.get(`/api/CCPS/documents/${selectedId}`, config);
+      const res = await axios.get(`/api/ccps/documents/${selectedId}`, config);
       setDocuments(res.data.urls || []);
     } catch (err) {
       console.error('Error fetching documents:', err);

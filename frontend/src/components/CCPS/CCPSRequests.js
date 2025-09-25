@@ -15,7 +15,7 @@ const CCPSRequests = () => {
 
   const fetchRequests = async () => {
     try {
-      const res = await axios.get('/api/CCPS/requests', {
+      const res = await axios.get('/api/ccps/requests', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setRequests(res.data);
@@ -27,7 +27,7 @@ const CCPSRequests = () => {
   const fetchRequestDocs = async (req) => {
     if (!req.id || docUrls[req.id]) return;
     try {
-      const res = await axios.get(`/api/CCPS/documents/${req.id}`, {
+      const res = await axios.get(`/api/ccps/documents/${req.id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setDocUrls((old) => ({ ...old, [req.id]: res.data.urls || [] }));
@@ -58,7 +58,7 @@ const CCPSRequests = () => {
 
     try {
       await axios.post(
-        '/api/CCPS/status',
+        '/api/ccps/status',
         {
           requestId,
           status: type,
@@ -88,7 +88,7 @@ const CCPSRequests = () => {
         if (!confirmDecline) return;
       }
       await axios.post(
-        "/api/CCPS/decision",
+        "/api/ccps/decision",
         { requestId, status: decision },
         { headers: { Authorization: `Bearer ${token}` } }
       );

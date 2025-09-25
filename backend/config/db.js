@@ -78,7 +78,7 @@ async function connectToDatabase() {
         status_reason TEXT,             
         detailed_report TEXT,           
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (assigned_to) REFERENCES users(id)
+        FOREIGN KEY (assigned_to) REFERENCES ccps(ccps_id)
           ON DELETE SET NULL
           ON UPDATE CASCADE
       );

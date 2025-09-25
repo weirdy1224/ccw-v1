@@ -79,41 +79,40 @@ module.exports = (db) => {
   /**
    * GET DOCUMENTS FOR A REQUEST
    */
-  router.get(
-    "/documents/:requestId",
-    authMiddleware(["controller", "admin"]),
-    async (req, res) => {
-      const { requestId } = req.params;
+router.get("/documents/:requestId", authMiddleware(["controller", "admin"]), async (req, res) => {
+  const { requestId } = req.params;
 
-      try {
-        const [results] = await db.query(
-          "SELECT document_paths FROM requests WHERE id = ?",
-          [requestId]
-        );
+  try {
+    const [results] = await db.query(
+      "SELECT document_paths FROM requests WHERE id = ?",
+      [requestId]
+    );
 
-        if (!results.length) {
-          return res.status(404).json({ message: "Request not found" });
-        }
+    if (!results.length) return res.status(404).json({ message: "Request not found" });
 
-        let pathsObj;
-        try {
-          pathsObj = JSON.parse(results[0].document_paths);
-        } catch {
-          pathsObj = { all: results[0].document_paths?.split(",") || [] };
-        }
-
-        const urls = Object.entries(pathsObj).map(([key, path]) => ({
-          type: key,
-          url: `${req.protocol}://${req.get("host")}/${path.replace(/^\/?/, "")}`,
-        }));
-
-        res.json({ urls });
-      } catch (err) {
-        console.error("❌ Fetch documents error:", err);
-        res.status(500).json({ message: "Failed to retrieve documents", error: err.message });
-      }
+    let pathsObj;
+    try {
+      pathsObj = JSON.parse(results[0].document_paths);
+    } catch {
+      pathsObj = { all: results[0].document_paths?.split(",") || [] };
     }
-  );
+
+    const urls = Object.entries(pathsObj).map(([key, filePath]) => {
+      // Make relative path for URL
+      const relativePath = filePath.replace(/^.*uploads[\\/]/, "uploads/");
+      return {
+        type: key,
+        url: `${req.protocol}://${req.get("host")}/${relativePath.replace(/\\/g, "/")}`,
+      };
+    });
+
+    res.json({ urls });
+  } catch (err) {
+    console.error("❌ Fetch documents error:", err);
+    res.status(500).json({ message: "Failed to retrieve documents", error: err.message });
+  }
+});
+
 
   /**
    * LIST CCPS STATIONS

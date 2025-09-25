@@ -15,7 +15,7 @@ let clamscan; // global instance
       debugMode: true,
       preference: 'clamscan',      // Prefer using clamscan binary
       clamscan: {
-        path: "/opt/homebrew/bin/clamscan", // Path to clamscan binary
+        path: "C:\\Program Files\\ClamAV\\clamscan.exe", // Path to clamscan binary
         scanArchives: true,
         active: true
       },
